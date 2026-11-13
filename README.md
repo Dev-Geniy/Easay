@@ -76,3 +76,10 @@ To test AI: install Netlify CLI, set a local key in a file not committed to git,
 ## Easay 5.3 — Visual marketing landing
 
 Four optimized original Easay-generated WebP illustrations are stored in `public/images/` (hero, speaking practice, certificates, decorative US flag). The marketing home incorporates parallax on desktop, staggered reveal and a floating phrase note, while keeping all text readable and disabling motion for `prefers-reduced-motion`. No JavaScript, remote image host or extra packages are required for the images to display. The student dashboard reuses a subdued hero accent without changing course progress or functionality.
+
+## Easay UI 5.4 — marketing visual polish
+
+- Rebalanced the landing hero composition so the illustration does not bleed into the headline. Hero artwork uses a soft radial CSS mask and subtle parallax only for devices allowing motion.
+- Speaking and certificate images use feathered masks and backgrounds chosen to blend into their sections. Removed redundant floating visual labels and dense highlight badges.
+- The first lesson now focuses on a single phrase, listen action, highly visible name input, and one Continue button. Original voice control and all quiz and onboarding IDs are preserved.
+- CSS respects reduced-motion preferences and keeps responsive mobile layouts and keyboard focus.

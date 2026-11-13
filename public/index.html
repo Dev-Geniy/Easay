@@ -37,25 +37,33 @@
     <div class="hero-proof"><span><b>132</b> готовых урока</span><i></i><span><b>11</b> направлений</span><i></i><span><b>0 ₴</b> обязательных платежей</span></div>
    </div>
    <div class="hero-art" data-reveal aria-label="Иллюстрация изучения английского языка">
-    <img src="/images/hero.webp" width="1060" height="597" alt="Обучение английскому: разговор, книги и символы США" fetchpriority="high" decoding="async" data-parallax="0.12">
-    <div class="hero-floating-note" aria-hidden="true"><span class="note-dot"></span><strong>Hi! Nice to meet you.</strong><small>Твоя первая фраза</small></div>
+    <img src="/images/hero.webp" width="1060" height="597" alt="Обучение английскому: разговор, книги и символы США" fetchpriority="high" decoding="async" data-parallax="0.05">
+    
    </div>
   </div>
  </section>
  <section class="lesson-section section-pad" id="first-lesson" tabindex="-1">
   <div class="lesson-header">
-   <div><div class="eyebrow"><span class="eyebrow-mark"></span> ПЕРВАЯ ПОБЕДА</div><h2>Твой первый английский за 3 минуты</h2><p>Без длинной теории. Послушай, ответь и проведи короткий диалог.</p></div>
-   <span class="lesson-pill">Урок 1 · A1</span>
+   <div class="eyebrow"><span class="eyebrow-mark"></span> ПЕРВЫЙ ШАГ</div>
+   <h2>Первый разговор — уже сейчас.</h2>
+   <p>Послушай фразу, представься и ответь собеседнику. Всего три шага.</p>
   </div>
   <div class="lesson-card">
-   <div class="lesson-card-top"><div><span class="mini-label">ПРАКТИКА</span><strong id="lessonStepLabel">Шаг 1 из 3</strong></div><span class="lesson-time">~3 минуты</span></div>
+   <div class="lesson-card-top"><span class="lesson-step-label" id="lessonStepLabel">Шаг 1 из 3</span><span class="lesson-time">~3 минуты</span></div>
    <div class="lesson-track"><span id="lessonProgress"></span></div>
-   <section class="lesson-step" data-step="0">
-    <div class="teacher-row"><span class="teacher-avatar">E</span><div class="teacher-say"><small>Easay говорит</small><b>Hello! My name is Alex.</b><span>Привет! Меня зовут Алекс.</span></div></div>
-    <button type="button" id="speakHello" class="sound-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5l4.5 4V5Zm4 4a4 4 0 0 1 0 6m2-9a8 8 0 0 1 0 12"/></svg> Слушать произношение</button>
-    <h3>А теперь представься ты</h3><p>Впиши имя или любое слово, которым хочешь представиться. Оно останется только в твоём браузере.</p>
-    <label for="learnerName">Как тебя называть? <small>необязательно</small></label><input id="learnerName" placeholder="Например, Sam" autocomplete="nickname" maxlength="30">
-    <div class="phrase-preview" aria-live="polite">Hello! My name is <strong id="previewName">Sam</strong>.</div>
+   <section class="lesson-step lesson-step-first" data-step="0">
+    <div class="lesson-focus-phrase">
+     <div class="lesson-focus-label">ПОСЛУШАЙ И ПОВТОРИ</div>
+     <h3 lang="en">Hello! My name is Alex.</h3>
+     <p>Привет! Меня зовут Алекс.</p>
+     <button type="button" id="speakHello" class="sound-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5l4.5 4V5Zm4 4a4 4 0 0 1 0 6m2-9a8 8 0 0 1 0 12"/></svg> Прослушать фразу</button>
+    </div>
+    <div class="lesson-answer">
+     <label for="learnerName">А как тебя зовут?</label>
+     <input id="learnerName" placeholder="Введи своё имя" autocomplete="nickname" maxlength="30" aria-describedby="nameHelp">
+     <div class="lesson-name-preview" aria-live="polite"><span>Твоя фраза:</span> <strong lang="en">Hello! My name is <span id="previewName">Sam</span>.</strong></div>
+     <small id="nameHelp">Имя необязательно и остаётся в твоём браузере.</small>
+    </div>
    </section>
    <section class="lesson-step" data-step="1" hidden>
     <div class="teacher-row"><span class="teacher-avatar">E</span><div class="teacher-say"><small>Собеседник говорит</small><b>Nice to meet you!</b><span>Выбери правильный перевод.</span></div></div>
@@ -87,12 +95,12 @@
  </section>
  <section class="speaking-showcase section-pad" id="speaking">
   <div class="speaking-layout">
-   <div class="speaking-media" data-reveal><img src="/images/speaking.webp" width="620" height="465" alt="Два ученика практикуют английский диалог" loading="lazy" decoding="async" data-parallax="0.085"><span class="speaking-floating-pill" aria-hidden="true">Practice makes progress</span></div>
+   <div class="speaking-media" data-reveal><img src="/images/speaking.webp" width="620" height="465" alt="Два ученика практикуют английский диалог" loading="lazy" decoding="async" data-parallax="0.055"></div>
    <div class="speaking-copy" data-reveal>
     <div class="eyebrow"><span class="eyebrow-mark"></span> ГОВОРИ, А НЕ ТОЛЬКО ЧИТАЙ</div>
     <h2>Английский, который можно <span>использовать сегодня.</span></h2>
     <p>Не нужно ждать, пока выучишь сотни правил. Начни с короткого диалога, повторяй живые фразы и приглашай друга потренировать две роли вместе.</p>
-    <div class="speaking-highlights"><span>Диалоги по ролям</span><span>Удобное произношение</span><span>Практика в своём темпе</span></div>
+    <p class="speaking-keyline">Диалоги по ролям <span aria-hidden="true">·</span> Практика с другом</p>
     <a class="text-action" href="#first-lesson">Попробовать первый разговор <span aria-hidden="true">→</span></a>
    </div>
   </div>
@@ -118,7 +126,7 @@
     <p class="certificate-disclaimer">Сертификат Easay подтверждает результат внутреннего экзамена и не является государственной аккредитацией.</p>
     <a class="text-action" href="/app.html">Посмотреть курсы <span aria-hidden="true">→</span></a>
    </div>
-   <div class="certificate-media" data-reveal><img src="/images/certificate.webp" width="620" height="465" alt="Иллюстрация сертификата, учебных достижений и прогресса" loading="lazy" decoding="async" data-parallax="0.06"></div>
+   <div class="certificate-media" data-reveal><img src="/images/certificate.webp" width="620" height="465" alt="Иллюстрация сертификата, учебных достижений и прогресса" loading="lazy" decoding="async" data-parallax="0.035"></div>
   </div>
  </section>
  <section class="mission-section section-pad" id="mission">

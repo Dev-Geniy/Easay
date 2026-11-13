@@ -11,8 +11,8 @@ function showStep(){
  $('lessonStepLabel').textContent=step===3?'Урок завершён':'Шаг '+String(step+1)+' из 3';
  const ready=step===0||step===3||Boolean(answered[step]);
  $('lessonNext').disabled=!ready;
- $('lessonNext').textContent=step===3?'Открыть приложение →':'Продолжить →';
- $('lessonHint').textContent=step===3?'Тебя ждут курсы и личный учебный маршрут.':'Можно повторять вслух — так фразы запоминаются лучше.';
+ $('lessonNext').textContent=step===3?'Завершить урок →':'Продолжить →';
+ $('lessonHint').textContent=step===3?'Твои следующие уроки уже готовы.':'';
  if(step===3)$('resultName').textContent=safeNickname($('learnerName').value);
 }
 function speak(text){
