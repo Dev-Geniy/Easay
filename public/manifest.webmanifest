@@ -2,11 +2,11 @@
   "name": "Easay — твой английский каждый день",
   "short_name": "Easay",
   "description": "Английский для жизни, работы и путешествий с ИИ-наставником.",
-  "start_url": "/",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f7f8fc",
-  "theme_color": "#305ef4",
+  "background_color": "#f7f9fc",
+  "theme_color": "#315cf5",
   "lang": "ru",
   "icons": [
     {

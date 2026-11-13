@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fc">
+<meta name="description" content="Easay — английский для жизни, работы и путешествий. Курсы, практика и ИИ-наставник.">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/ui.css">
+<title>Easay — Speak your way</title>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <button class="brand" data-action="home" aria-label="Easay, на главную"><span class="brand-logo" aria-hidden="true"><span>e</span></span><span>easay<span class="brand-dot">.</span></span></button>
+    <div class="side-label">ОБУЧЕНИЕ</div>
+    <nav id="sideNav" class="side-nav" aria-label="Основное меню"></nav>
+    <div class="side-label side-secondary">МОЙ ПРОГРЕСС</div>
+    <nav id="sideExtra" class="side-nav" aria-label="Прогресс и настройки"></nav>
+    <div class="side-spacer"></div>
+    <div class="upgrade-card">
+      <div class="upgrade-glow">✦</div>
+      <span class="mini-chip">EASAY AI</span>
+      <strong>У тебя есть наставник</strong>
+      <p>Он поможет объяснить трудное и потренировать речь.</p>
+      <button data-action="mentor" class="upgrade-cta">Открыть наставника <span>↗</span></button>
+    </div>
+    <div class="side-bottom"><a class="back-to-site" href="/">← О проекте Easay</a><br>Версия 4.0 · Бесплатно</div>
+  </aside>
+  <div class="main-area">
+    <header class="topbar">
+      <div class="crumb"><span class="crumb-dot"></span><span id="breadcrumb">Моё обучение</span></div>
+      <div class="top-actions"><div class="top-level" id="levelTag">A1</div><button data-action="theme" class="icon-btn" id="themeBtn" title="Переключить тему" aria-label="Переключить тему">☾</button><button data-action="profile" class="avatar" title="Настройки" id="avatar">E</button></div>
+    </header>
+    <main class="main-content" id="content" tabindex="-1"></main>
+    <footer class="app-footer"><div class="app-charity"><div><strong>Учишься бесплатно. Помогаешь по желанию.</strong><p>50% добровольных донатов направляем на питание и развитие детей в <a href="https://www.skydoor.org.ua/sky-kids" target="_blank" rel="noopener noreferrer">SkyKids</a>.</p><small>Картка Банки: <b>4874 1000 3574 2876</b></small></div><a class="app-charity-action" href="https://send.monobank.ua/jar/9ECZLkLXkq" target="_blank" rel="noopener noreferrer">Поддержать ↗</a></div><p>Easay · Прогресс хранится в этом браузере · ИИ может ошибаться · <span id="aiQuotaLabel">ИИ 0/8 сегодня</span></p></footer>
+  </div>
+</div>
+<nav class="mobile-bottom" id="mobileNav" aria-label="Навигация на телефоне"></nav>
+<div id="toasts" class="toast-area" role="status" aria-live="polite"></div>
+<div id="modalRoot"></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

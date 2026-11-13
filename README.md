@@ -41,3 +41,15 @@ To test AI: install Netlify CLI, set a local key in a file not committed to git,
 - Brand and domain/trademark availability should be checked before public commercial use.
 
 **Never paste a Groq API key into `public/` files, the README, chats, or a public repo.**
+
+
+## Easay 4.0 — Free-first landing and introductory lesson
+
+- The public entry `/` is a free product landing page with a 3-minute interactive introductory lesson.
+- On successful completion the user sees a voluntary donation prompt; **Continue for free** is always available and no payment is checked or required.
+- `public/app.html` contains the original course app, with the same localStorage progress, AI mentor, courses and a permanent support footer.
+- Donation page: https://send.monobank.ua/jar/9ECZLkLXkq. Donation jar card number is shown for transparency. Project states that 50% of voluntary donations go to food and development activities at SkyKids.
+- The first lesson only stores an optional nickname and motivation choice locally; it does not send either to a server.
+- Changes to `manifest.webmanifest` set the installed PWA start page to `/app.html`.
+- The AI key stays exclusively in Netlify Functions secrets; no credentials in browser code.
+- The application is free. AI features remain subject to service availability and published usage limits.

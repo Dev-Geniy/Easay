@@ -3,44 +3,123 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f8fc">
-<meta name="description" content="Easay — английский для жизни, работы и путешествий. Курсы, практика и ИИ-наставник.">
-<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta name="theme-color" content="#f7f9fc">
+<meta name="description" content="Easay — учи английский бесплатно. 132 урока, 11 направлений, разговорная практика и ИИ-наставник. Начни с первого урока.">
+<meta property="og:title" content="Easay — английский, который становится привычкой">
+<meta property="og:description" content="Первый урок прямо сейчас. Затем 132 урока и ИИ-наставник. Бесплатно, без обязательной подписки.">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/styles.css">
-<title>Easay — Speak your way</title>
+<link rel="stylesheet" href="/intro.css">
+<title>Easay — начни говорить по-английски</title>
 </head>
 <body>
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar">
-    <button class="brand" data-action="home" aria-label="Easay, на главную"><span class="brand-logo" aria-hidden="true"><span>e</span></span><span>easay<span class="brand-dot">.</span></span></button>
-    <div class="side-label">ОБУЧЕНИЕ</div>
-    <nav id="sideNav" class="side-nav" aria-label="Основное меню"></nav>
-    <div class="side-label side-secondary">МОЙ ПРОГРЕСС</div>
-    <nav id="sideExtra" class="side-nav" aria-label="Прогресс и настройки"></nav>
-    <div class="side-spacer"></div>
-    <div class="upgrade-card">
-      <div class="upgrade-glow">✦</div>
-      <span class="mini-chip">EASAY AI</span>
-      <strong>У тебя есть наставник</strong>
-      <p>Он поможет объяснить трудное и потренировать речь.</p>
-      <button data-action="mentor" class="upgrade-cta">Открыть наставника <span>↗</span></button>
+<a class="skip" href="#content">К содержимому</a>
+<header class="site-header">
+ <div class="header-inner">
+  <a class="brand" href="/" aria-label="Easay, главная"><span class="brand-symbol">e<span>.</span></span><span>easay</span></a>
+  <nav class="header-links" aria-label="Разделы"><a href="#how">Как работает</a><a href="#courses">Направления</a><a href="#mission">Наша миссия</a></nav>
+  <div class="header-actions"><span class="free-pill"><span class="free-dot"></span>Бесплатно</span><a class="header-enter" href="/app.html" id="enterApp">В кабинет <span aria-hidden="true">↗</span></a></div>
+ </div>
+</header>
+<main id="content">
+ <section class="hero section-pad">
+  <div class="hero-layout">
+   <div class="hero-copy">
+    <div class="eyebrow"><span class="eyebrow-mark"></span> АНГЛИЙСКИЙ, КОТОРЫЙ ВПИСЫВАЕТСЯ В ЖИЗНЬ</div>
+    <h1>Начни говорить.<br><span>Даже если раньше не получалось.</span></h1>
+    <p class="hero-description">Небольшой урок сегодня — больше уверенности завтра. Учись для общения, работы, бизнеса и путешествий. С ИИ-наставником, который помогает на каждом шаге.</p>
+    <div class="hero-actions">
+     <a class="button button-primary button-xl" href="#first-lesson">Пройти первый урок <span aria-hidden="true">↗</span></a>
+     <span class="under-cta">2–3 минуты · без регистрации</span>
     </div>
-    <div class="side-bottom">Версия 3.2 · Demo MVP</div>
-  </aside>
-  <div class="main-area">
-    <header class="topbar">
-      <div class="crumb"><span class="crumb-dot"></span><span id="breadcrumb">Моё обучение</span></div>
-      <div class="top-actions"><div class="top-level" id="levelTag">A1</div><button data-action="theme" class="icon-btn" id="themeBtn" title="Переключить тему" aria-label="Переключить тему">☾</button><button data-action="profile" class="avatar" title="Настройки" id="avatar">E</button></div>
-    </header>
-    <main class="main-content" id="content" tabindex="-1"></main>
-    <footer class="app-footer">Easay · Прогресс хранится в этом браузере · ИИ может ошибаться · <span id="aiQuotaLabel">ИИ 0/8 сегодня</span></footer>
+    <div class="hero-proof"><span><b>132</b> готовых урока</span><i></i><span><b>11</b> направлений</span><i></i><span><b>0 ₴</b> обязательных платежей</span></div>
+   </div>
+   <div class="hero-visual" aria-label="Пример разговора из первого урока">
+    <div class="visual-top"><span class="visual-pulse"></span><span>ТВОЙ ПЕРВЫЙ ДИАЛОГ</span><span class="visual-tag">A1 · START</span></div>
+    <div class="visual-center">
+     <div class="speaker"><span class="speaker-avatar">E</span><div><b>Easay</b><small>Твой учебный помощник</small></div></div>
+     <div class="speak-message">Hi! Nice to meet you.<span>Привет! Рад знакомству.</span></div>
+     <div class="user-message">Nice to meet you too!</div>
+    </div>
+    <div class="visual-footer"><div class="visual-progress"><span></span></div><div><span>01 / 04</span><strong>Ты уже можешь говорить.</strong></div></div>
+    <div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+   </div>
   </div>
-</div>
-<nav class="mobile-bottom" id="mobileNav" aria-label="Навигация на телефоне"></nav>
-<div id="toasts" class="toast-area" role="status" aria-live="polite"></div>
-<div id="modalRoot"></div>
-<script type="module" src="/app.js"></script>
-</body>
-</html>
+ </section>
+ <section class="lesson-section section-pad" id="first-lesson" tabindex="-1">
+  <div class="lesson-header">
+   <div><div class="eyebrow"><span class="eyebrow-mark"></span> ПЕРВАЯ ПОБЕДА</div><h2>Твой первый английский за 3 минуты</h2><p>Без длинной теории. Послушай, ответь и проведи короткий диалог.</p></div>
+   <span class="lesson-pill">Урок 1 · A1</span>
+  </div>
+  <div class="lesson-card">
+   <div class="lesson-card-top"><div><span class="mini-label">ПРАКТИКА</span><strong id="lessonStepLabel">Шаг 1 из 3</strong></div><span class="lesson-time">~3 минуты</span></div>
+   <div class="lesson-track"><span id="lessonProgress"></span></div>
+   <section class="lesson-step" data-step="0">
+    <div class="teacher-row"><span class="teacher-avatar">E</span><div class="teacher-say"><small>Easay говорит</small><b>Hello! My name is Alex.</b><span>Привет! Меня зовут Алекс.</span></div></div>
+    <button type="button" id="speakHello" class="sound-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5l4.5 4V5Zm4 4a4 4 0 0 1 0 6m2-9a8 8 0 0 1 0 12"/></svg> Слушать произношение</button>
+    <h3>А теперь представься ты</h3><p>Впиши имя или любое слово, которым хочешь представиться. Оно останется только в твоём браузере.</p>
+    <label for="learnerName">Как тебя называть? <small>необязательно</small></label><input id="learnerName" placeholder="Например, Sam" autocomplete="nickname" maxlength="30">
+    <div class="phrase-preview" aria-live="polite">Hello! My name is <strong id="previewName">Sam</strong>.</div>
+   </section>
+   <section class="lesson-step" data-step="1" hidden>
+    <div class="teacher-row"><span class="teacher-avatar">E</span><div class="teacher-say"><small>Собеседник говорит</small><b>Nice to meet you!</b><span>Выбери правильный перевод.</span></div></div>
+    <div class="choice-list" id="choiceOne"><button class="choice" type="button" data-answer="hello">Хорошего вечера</button><button class="choice" type="button" data-answer="nice">Рад знакомству</button><button class="choice" type="button" data-answer="sorry">Извини, пожалуйста</button></div>
+    <p class="answer-feedback" id="feedbackOne" aria-live="polite"></p>
+   </section>
+   <section class="lesson-step" data-step="2" hidden>
+    <div class="teacher-row"><span class="teacher-avatar">E</span><div class="teacher-say"><small>Тебя спрашивают</small><b>How are you?</b><span>Как дела? Выбери естественный ответ.</span></div></div>
+    <div class="choice-list" id="choiceTwo"><button class="choice" type="button" data-answer="where">Where is the station?</button><button class="choice" type="button" data-answer="good">I'm good, thanks!</button><button class="choice" type="button" data-answer="name">My name is a table.</button></div>
+    <p class="answer-feedback" id="feedbackTwo" aria-live="polite"></p>
+   </section>
+   <section class="lesson-step" data-step="3" hidden>
+    <div class="success-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div>
+    <span class="mini-label">ГОТОВО</span><h3>Первый разговор состоялся.</h3>
+    <p>Ты уже познакомился, понял короткую фразу и ответил собеседнику. Это хорошее начало.</p>
+    <div class="result-lines" aria-live="polite"><span>Hello! My name is <strong id="resultName">Sam</strong>.</span><span>Nice to meet you!</span><span>I'm good, thanks!</span></div>
+   </section>
+   <div class="lesson-bottom"><span id="lessonHint">Можно повторять вслух — так фразы запоминаются лучше.</span><button class="button button-primary" type="button" id="lessonNext">Продолжить <span aria-hidden="true">→</span></button></div>
+  </div>
+  <p class="lesson-under">Easay не требует оплаты, чтобы продолжить обучение. После урока откроется персональный кабинет.</p>
+ </section>
+ <section class="benefits section-pad" id="how">
+  <div class="section-head"><div class="eyebrow"><span class="eyebrow-mark"></span> ТВОЙ ПУТЬ</div><h2>Не просто учи слова.<br>Начни ими пользоваться.</h2><p>Программа движется вместе с тобой, а не заставляет подстраиваться под приложение.</p></div>
+  <div class="benefit-grid">
+   <article class="benefit-card"><span class="feature-mark">01</span><div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-12 4h3"/></svg></div><h3>Понемногу каждый день</h3><p>Короткие занятия, повторение фраз и понятный прогресс. Можно идти в своём темпе.</p></article>
+   <article class="benefit-card"><span class="feature-mark">02</span><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 3 14 9l6 3-6 3-2 6-2-6-6-3 6-3 2-6Z"/></svg></div><h3>ИИ — внутри обучения</h3><p>Объясняет ошибки, подбирает практику и помогает составить план. Доступность зависит от лимитов сервиса.</p></article>
+   <article class="benefit-card"><span class="feature-mark">03</span><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/><path d="m17 14 3 3-3 3"/></svg></div><h3>Сразу к разговору</h3><p>Повседневные фразы, рабочие ситуации и тренировки с произношением вместо сухой теории.</p></article>
+  </div>
+ </section>
+ <section class="course-section section-pad" id="courses">
+  <div class="section-head compact"><div class="eyebrow"><span class="eyebrow-mark"></span> НАПРАВЛЕНИЯ</div><h2>У каждого свой английский</h2><p>Выбирай цель: жить, работать, путешествовать, общаться — или всё сразу.</p></div>
+  <div class="course-list">
+   <div class="course-short"><span class="course-number">01</span><div><strong>English Basics</strong><p>Английский с нуля</p></div><span class="course-level">A1</span></div>
+   <div class="course-short"><span class="course-number">02</span><div><strong>Everyday English</strong><p>Для жизни и общения</p></div><span class="course-level">A1–A2</span></div>
+   <div class="course-short"><span class="course-number">03</span><div><strong>Work & Business</strong><p>Для работы и деловых задач</p></div><span class="course-level">A1–B2</span></div>
+   <div class="course-short"><span class="course-number">04</span><div><strong>Travel & Social</strong><p>Путешествия и новые знакомства</p></div><span class="course-level">A1–A2</span></div>
+   <div class="course-short"><span class="course-number">05</span><div><strong>Tech, Study & More</strong><p>IT, учёба, собеседования и сервис</p></div><span class="course-level">A2–B2</span></div>
+  </div>
+  <a class="button button-dark" href="#first-lesson">Начать с первого урока <span aria-hidden="true">↗</span></a>
+ </section>
+ <section class="mission-section section-pad" id="mission">
+  <div class="mission-layout">
+   <div class="mission-copy"><span class="mission-eyebrow">УЧИТЬСЯ И ПОМОГАТЬ</span><h2>Английский бесплатно.<br>Поддержка — по желанию.</h2><p>Мы сделали Easay доступным без подписки. Если проект полезен, можешь оставить добровольный донат — на развитие приложения и поддержку детей.</p><div class="mission-fifty"><strong>50%</strong><span>всех полученных донатов мы направляем на питание детей и их развитие в детском клубе и подростковом центре <a href="https://www.skydoor.org.ua/sky-kids" target="_blank" rel="noopener noreferrer">SkyKids</a>.</span></div>
+   <div class="mission-actions"><a class="button button-green" href="https://send.monobank.ua/jar/9ECZLkLXkq" target="_blank" rel="noopener noreferrer">Поддержать проект <span aria-hidden="true">↗</span></a><a class="mission-more" href="https://www.skydoor.org.ua/sky-kids" target="_blank" rel="noopener noreferrer">Узнать о SkyKids</a></div></div>
+   <div class="mission-detail"><div class="mini-label">ОТКРЫТО И ПРОЗРАЧНО</div><h3>Без обязательной оплаты</h3><p>Пожертвование не влияет на доступ к занятиям. Сумму ты выбираешь самостоятельно.</p><div class="bank-box"><span>Посилання на Банку</span><a href="https://send.monobank.ua/jar/9ECZLkLXkq" target="_blank" rel="noopener noreferrer">send.monobank.ua/jar/9ECZLkLXkq</a></div><div class="bank-box"><span>Номер картки Банки</span><div><strong>4874 1000 3574 2876</strong><button type="button" class="copy-bank" data-copy-bank>Копировать</button></div></div><p class="bank-note">Назначение Банки: «Добровольные донаты на развитие проекта + 50% денег отправляем на детский и подростковый центр SkyKids.com.ua».</p></div>
+  </div>
+ </section>
+ <section class="closing section-pad"><div><span class="eyebrow"><span class="eyebrow-mark"></span> ТВОЙ СЛЕДУЮЩИЙ ШАГ</span><h2>Начать проще, чем кажется.</h2><p>Одна фраза. Один короткий диалог. И ты уже в процессе.</p><a class="button button-primary button-xl" href="#first-lesson">Начать бесплатно <span aria-hidden="true">→</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner"><div><a class="brand footer-brand" href="/"><span class="brand-symbol">e<span>.</span></span><span>easay</span></a><p>Бесплатный английский для жизни. Делай маленькие шаги каждый день.</p></div><div><strong>Обучение</strong><a href="#first-lesson">Первый урок</a><a href="/app.html">Открыть приложение</a></div><div><strong>Поддержка проекта</strong><a href="https://send.monobank.ua/jar/9ECZLkLXkq" target="_blank" rel="noopener noreferrer">Добровольный донат</a><span>Картка Банки: 4874 1000 3574 2876</span><span>50% донатов — питание и развитие детей SkyKids</span></div></div><div class="footer-bottom">© Easay · Все основные уроки бесплатны · ИИ может ошибаться</div></footer>
+<dialog class="motivation-dialog" id="motivationDialog" aria-labelledby="motivationTitle">
+ <div class="modal-shell"><div class="modal-decoration"><div class="success-symbol small" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div><span>ПЕРВЫЙ УРОК ПРОЙДЕН</span></div>
+ <h2 id="motivationTitle">Насколько ты мотивирован продолжать?</h2>
+ <p>Ты уже сделал первый шаг. Иногда мы откладываем полезные привычки или бросаем начатое — поэтому Easay помогает двигаться небольшими уроками и возвращаться без чувства вины.</p>
+ <fieldset class="motivation-options"><legend>Как хочешь заниматься?</legend><label><input type="radio" name="motivation" value="gentle" checked><span>В своём темпе</span></label><label><input type="radio" name="motivation" value="regular"><span>Несколько раз в неделю</span></label><label><input type="radio" name="motivation" value="daily"><span>Каждый день</span></label></fieldset>
+ <div class="modal-support"><span class="support-ratio">50%</span><div><strong>Учимся сами — помогаем детям</strong><p>Половину добровольных донатов мы направляем на питание и развитие детей в SkyKids. Вторая половина помогает поддерживать Easay.</p></div></div>
+ <p class="modal-note">Приложение полностью доступно бесплатно. Пожертвование — только если ты сам этого хочешь; на обучение оно не влияет.</p>
+ <div class="modal-actions"><button type="button" class="modal-skip" id="skipDonation">Продолжить бесплатно</button><button type="button" class="button button-green" id="donateThenContinue">Поддержать <span aria-hidden="true">↗</span></button></div>
+ </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script type="module" src="/intro.js"></script>
+</body></html>
