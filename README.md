@@ -83,3 +83,12 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - Speaking and certificate images use feathered masks and backgrounds chosen to blend into their sections. Removed redundant floating visual labels and dense highlight badges.
 - The first lesson now focuses on a single phrase, listen action, highly visible name input, and one Continue button. Original voice control and all quiz and onboarding IDs are preserved.
 - CSS respects reduced-motion preferences and keeps responsive mobile layouts and keyboard focus.
+
+## Easay UI 5.5 — Less noise, more focus
+
+- Permanently uses the light theme: previous theme choice is ignored, no toggle remains, and local progress is preserved under the same storage key.
+- Removed the repeated level indicator in the header; level and pace remain visible on the learning homepage.
+- One-column AI mentor: quick prompts, a simple conversation, and a message composer. Personal course details are tucked into an optional disclosure; the weekly plan still works.
+- Replaced the review empty state with a compact SVG mark, one clear next action, and a light explanatory disclosure. Kept the same spaced-repetition data and review controls.
+- Removed redundant sidebar AI promotion and made AI Mentor available in mobile bottom navigation; settings remain accessible via the top-right avatar.
+- Added a small pastel-based design system in `public/minimal.css`, accessible focus indicators, and reduced-motion support.

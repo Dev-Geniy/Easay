@@ -38,8 +38,8 @@ test('progress storage, optional Groq and four-card quiz remain available',()=>{
 });
 test('service worker pre-caches all new teacher assets',()=>{
  const worker=read('../public/sw.js');
- for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/exam.html'","'/exam-ui.js'","'/exam.js'","'/certificate.html'","'/certificate.js'"]){
+ for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/minimal.css'","'/exam.html'","'/exam-ui.js'","'/exam.js'","'/certificate.html'","'/certificate.js'"]){
   assert.ok(worker.includes(asset),'missing offline asset '+asset);
  }
- assert.match(worker,/easay-static-v5.4/);
+ assert.match(worker,/easay-static-v5.5/);
 });
