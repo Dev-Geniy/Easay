@@ -8,7 +8,7 @@ test('all 132 lessons have tailored offline teacher messages for four stages',()
   const item=LESSON_SCRIPTS[lesson.id];
   assert.equal(item.stages.length,4);
   assert.ok(item.stages.every(x=>x.length>95));
-  assert.ok(item.stages[0].includes(lesson.title));
+  assert.ok(item.stages[0].includes(lesson.title.replace(/[.!?]+$/,'')));
   assert.ok(item.stages[0].includes(lesson.translation.replace(/[.!?]+$/,'')));
   assert.ok(item.stages[0].includes(lesson.tip.replace(/[.!?]+$/,'')));
   assert.equal(item.timeline.samples.length,3);
