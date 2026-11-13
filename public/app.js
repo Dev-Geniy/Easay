@@ -186,7 +186,7 @@ function completeOnboarding(){
  state.level=$('#onboardLevel')?.value||'A1';
  state.pace=$('#onboardPace')?.value||state.pace||'regular';
  state.paceFromOnboarding=true;state.onboarded=true;save();
- $('#modalRoot').innerHTML='';const deepLesson=new URLSearchParams(location.search).get('lesson');if(getLesson(deepLesson))go('lesson',deepLesson);else go('home');toast('Маршрут готов. Начинай в своём темпе!');
+ $('#modalRoot').innerHTML='';const deepLesson=new URLSearchParams(location.search).get('lesson');if(getLesson(deepLesson)){go('lesson',deepLesson);if(new URLSearchParams(location.search).get('pair')==='1'){step=2;render();}}else go('home');toast('Маршрут готов. Начинай в своём темпе!');
 }
 function downloadJSON(){const data=JSON.stringify(state,null,2);const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='easay-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),700)}
 async function importJSON(file){if(!file)return;if(file.size>1000000)return toast('Файл больше 1 МБ.');try{const data=JSON.parse(await file.text());if(data.version!==3||typeof data.completed!=='object'||!data.completed||!Array.isArray(data.mistakes)||typeof data.savedWords!=='object')throw Error('Неподходящий формат');if(!confirm('Заменить текущий прогресс данными из файла?'))return;state={...structuredClone(initial),...data,firstName:String(data.firstName||'').slice(0,32),primary:getCourse(data.primary)?data.primary:'everyday',mentorHistory:[],completed:Object.fromEntries(Object.entries(data.completed).filter(([key])=>getLesson(key))),savedWords:Object.fromEntries(Object.entries(data.savedWords||{}).filter(([key])=>/^(?:[a-z]+)-\d+:\d$/.test(key)))};save();go('home');toast('Прогресс импортирован.')}catch(e){toast('Файл не подходит для импорта: '+e.message)}}
@@ -254,7 +254,7 @@ const deepParams=new URLSearchParams(location.search);
 const deepLesson=deepParams.get('lesson');
 if(getLesson(deepLesson)){
  if(deepParams.get('pair')==='1')pairLessonId=deepLesson;
- if(state.onboarded)go('lesson',deepLesson);
+ if(state.onboarded){go('lesson',deepLesson);if(deepParams.get('pair')==='1'){step=2;render();}}
  else loadOnboarding();
 }else if(!state.onboarded)loadOnboarding();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js').catch(()=>{});

@@ -10,14 +10,17 @@ test('guided experience preserves all four learning screens and offline teacher'
  assert.match(app,/function lessonWords/);
  assert.match(app,/function lessonDialogue/);
  assert.match(app,/function quizView/);
- assert.match(app,/teacherBlock\(l\)/);
+ assert.match(app,/inline-teacher/);
+ assert.doesNotMatch(app,/function speakTeacher/);
  assert.match(app,/tensePanel\(l\)/);
  assert.match(app,/function syncTeacher/);
  assert.match(app,/SpeechSynthesisUtterance/);
  assert.match(app,/function typeTeacher/);
  assert.match(app,/function loadOnboarding/);
  assert.match(app,/onboardPace/);
- assert.match(app,/profileTeacherVoice/);
+ assert.doesNotMatch(app,/profileTeacherVoice/);
+ assert.match(app,/invite-friend/);
+ assert.match(app,/finalExamCTA/);
  assert.match(app,/open-plan/);
  assert.match(html,/\/guided\.css/);
  assert.ok(existsSync(new URL('../public/teacher.js',import.meta.url)));
@@ -35,8 +38,8 @@ test('progress storage, optional Groq and four-card quiz remain available',()=>{
 });
 test('service worker pre-caches all new teacher assets',()=>{
  const worker=read('../public/sw.js');
- for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'"]){
+ for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/exam.html'","'/exam-ui.js'","'/exam.js'","'/certificate.html'","'/certificate.js'"]){
   assert.ok(worker.includes(asset),'missing offline asset '+asset);
  }
- assert.match(worker,/easay-static-v5.0/);
+ assert.match(worker,/easay-static-v5.2/);
 });

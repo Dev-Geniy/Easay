@@ -62,3 +62,13 @@ To test AI: install Netlify CLI, set a local key in a file not committed to git,
 - The intro lesson stores the entered nickname locally (only when supplied) so the post-lesson onboarding does not ask twice. Onboarding chooses goal, level and pace.
 - The home dashboard prioritizes a single Continue button with course progress and a short coach suggestion.
 - The settings screen controls teacher speech and study pace. AI chat, repeat cards and quizzes remain.
+
+## Easay 5.2 — Local tutor, friend invites, achievements, final exams
+
+- Removed Russian browser TTS entirely; lesson coach instructions now type beneath each lesson's stage heading. English pronunciation remains.
+- Each passed lesson offers a one-click shareable link to pair dialogue practice, and a permanent hidden option (saved locally). Pair practice is a shared-role script, NOT a built-in voice/video call.
+- Four lightweight achievements based on genuine local completed lessons and saved vocabulary, accessible through expanded home statistics.
+- A 20-question 100-point final assessment for every 12-lesson course, unlocked in the interface after completion.
+- Offline exams are practice only. With Cloudflare Pages Functions + D1, answers are graded server-side and a verifiable Easay-internal certificate is issued at 90+/100.
+- Certificate PDF: use the native browser print dialog from certificate.html and select Save as PDF. Public names are opt-in; certificates do not claim external accreditation or prove identity.
+- Set up D1 by running db/schema.sql; bind D1 to EASAY_DB in Cloudflare Pages and set CERT_HASH_SECRET (random 24+ chars). See docs/certificates.md.
