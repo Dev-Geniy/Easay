@@ -1,0 +1,52 @@
+/* Easay 5.2 — calm typographic lesson, readable cards, restrained motion. */
+:root{--bg:#f5f7fc;--ink:#17233c;--muted:#79859b;--muted2:#51627a;--line:#e1e8f4;--soft:#eaf1ff;--shadow:0 8px 25px rgba(27,48,93,.058)}
+body{background:linear-gradient(180deg,#f9fbff,#f3f6fc)}
+.card,.lesson-item,.word-card,.course-card{border-color:#dde6f3}
+.page-sub,.course-desc,.note{color:var(--muted2)}
+.course-card{background:linear-gradient(160deg,#fff 75%,#f8faff);box-shadow:0 8px 30px rgba(19,46,105,.045)}
+.lesson-topcard{background:#fff;border:1px solid #e0e7f2}
+.lesson-viewport{display:block}
+.lesson-topcard .h2{font-size:clamp(26px,3.7vw,34px);letter-spacing:-1.15px;margin:12px 0 9px}
+.inline-teacher{font-size:14px;font-weight:500;color:#55647b;line-height:1.78;margin:8px 0 23px;min-height:2.5em;white-space:normal;max-width:760px}
+.lesson-lead{font-size:13px;color:#8490a4;margin:0 0 18px}
+.focus-phrase{background:linear-gradient(135deg,#eaf1ff,#f4f7ff);border-color:#d5e2ff}
+.focus-phrase strong{color:#1b3782}
+.phrase-breakdown{background:#f9fbff;border-color:#e4ebf6}
+.tense-panel{background:#fcfdff}.tense-card{background:#f4f7ff;border-color:#e6ebfa}
+.word-card{background:#fff}.word-card .word-en{color:#16243c}
+.quiz-option:hover,.lesson-item:hover{border-color:#bacbf8;background:#f4f7ff}
+.dialogue-chat{background:#f5f8fe}.dialogue-bubble{box-shadow:0 6px 19px rgba(21,45,102,.04)}
+.friend-invite{margin:22px 0 12px;padding:18px 20px;border-radius:18px;border:1px solid #e0e9f4;background:linear-gradient(135deg,#f7faff,#f1f6ff);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.friend-invite>div{flex:1 1 220px}.friend-invite strong{font-size:14px;color:var(--ink)}.friend-invite p{font-size:12px;line-height:1.7;color:var(--muted2);margin:6px 0 0}
+.friend-invite .btn{font-size:12px;white-space:nowrap}.invite-hide{margin-left:auto;padding:8px 2px;font-size:11px;color:#98a4b5;background:transparent;border:none;text-decoration:underline;text-underline-offset:3px}
+.invite-hide:hover{color:#52617b}
+.pair-practice{border:1px solid #dce6f9;border-radius:20px;padding:22px;margin:16px 0 20px;background:#f4f7ff}
+.pair-practice h3{font-size:19px;letter-spacing:-.3px;margin:8px 0}.pair-practice p{font-size:12px;line-height:1.7;color:#596981;margin:5px 0 18px}
+.pair-turns{display:grid;gap:9px}.pair-turns>div{display:flex;align-items:center;gap:13px;background:white;border:1px solid #e6eaf2;border-radius:12px;padding:11px 14px}
+.pair-turns>div span{background:#eaf0ff;color:#345bd0;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:850;flex-shrink:0}
+.pair-turns>div strong{font-size:14px;flex:1}.pair-turns>div small{font-size:12px;color:#7c879c}
+.course-final{margin:27px 0 15px;display:flex;align-items:center;justify-content:space-between;gap:17px;background:linear-gradient(120deg,#eaf1ff,#f5f8ff);border:1px solid #dbe5f7;padding:23px;border-radius:21px}
+.course-final>div{flex:1}.course-final h3{font-size:19px;letter-spacing:-.5px;margin:10px 0 8px}.course-final p{font-size:12px;line-height:1.7;color:#506281;margin:0;max-width:620px}
+.course-final .btn{flex-shrink:0;text-decoration:none;white-space:nowrap}.course-final .pill{flex-shrink:0;text-align:center}
+.badge-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:17px 0 20px}
+.achievement{min-height:72px;display:flex;align-items:center;gap:11px;padding:14px;background:#fff;border-radius:15px;border:1px solid #e2eaf5;font-size:12px;font-weight:800;color:#52627b}
+.achievement.earned{border-color:#c3ddce;background:#f0fbf5;color:#207354}
+.badge-mark{width:28px;height:28px;display:grid;place-items:center;font-size:13px;border-radius:9px;background:#eef3fa;color:#8c9cb2;flex-shrink:0}
+.achievement.earned .badge-mark{background:#dbf4e5;color:#1b8c5e}
+.nav-btn.active{background:#eaf1ff;color:#254fcd}
+.btn:active,.quiz-option:active,.filter-pill:active{transform:scale(.985)}
+.btn,.nav-btn,.course-card,.word-card,.lesson-item,.quiz-option{transition:transform .18s ease,border-color .18s ease,background-color .18s ease,box-shadow .18s ease}
+.dialogue-row{animation:easayPop .32s cubic-bezier(.25,.8,.2,1) both}
+.dialogue-row:nth-child(2){animation-delay:.07s}.dialogue-row:nth-child(3){animation-delay:.14s}.dialogue-row:nth-child(4){animation-delay:.21s}
+#content>.lesson-shell,#content>.home-quiet,#content>.profile-grid{animation:easayFade .21s ease-out both}
+.result-banner,.toast{animation:easayPop .26s ease-out both}
+.course-final .btn:hover,.home-main-button:hover{box-shadow:0 7px 24px #315cf52b}
+@keyframes easayFade{from{opacity:.7;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes easayPop{from{opacity:.25;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.dark .inline-teacher{color:#c1cede}.dark .focus-phrase{background:#263856;border-color:#405378}.dark .focus-phrase strong{color:#e3eaff}.dark .phrase-breakdown,.dark .word-card,.dark .tense-card,.dark .course-card{background:var(--paper)}
+.dark .course-final,.dark .friend-invite,.dark .pair-practice{background:#26334c;border-color:#3c4d6e}.dark .course-final p,.dark .friend-invite p,.dark .pair-practice p{color:#becbe0}
+.dark .pair-turns>div,.dark .achievement{background:#1d293c;border-color:#354358;color:#e6ecf7}
+.dark .achievement.earned{background:#19392e;color:#a5e8be}
+.dark .dialogue-chat{background:#1c293f}.dark .tense-tag{color:#c0ceff}
+@media(max-width:700px){.course-final{flex-direction:column;align-items:stretch;padding:19px}.course-final .btn{width:100%}.badge-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.pair-turns>div{flex-wrap:wrap}.pair-turns>div small{flex-basis:100%;padding-left:41px}.friend-invite{padding:16px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
