@@ -1,0 +1,9 @@
+{
+  "name": "easay",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline-first English courses + optional Groq mentor via Netlify Functions",
+  "scripts": {"build":"node scripts/build.mjs","test":"node --test tests/*.test.mjs"},
+  "engines": {"node": ">=20"}
+}
