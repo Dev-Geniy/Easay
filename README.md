@@ -1,0 +1,43 @@
+# Easay 3.0 — English-learning PWA + AI teacher
+
+**Repository:** `easay` · **11 courses / 132 lessons** · No frontend build dependencies.
+
+## Quick deployment (GitHub → Netlify)
+
+1. Create a GitHub repository named **`easay`**.
+2. Upload all project files and preserve folders `public/`, `netlify/functions/`, `scripts/`, `tests/`. The real API key must NEVER be included in GitHub.
+3. Netlify → **Add new project → Import an existing project → GitHub** → select `easay`.
+4. Build command: `node scripts/build.mjs`; publish directory: `dist`; functions directory: `netlify/functions` (already in `netlify.toml`).
+5. Environment variables for the Netlify project: `GROQ_API_KEY` secret, **Functions scope**, with a **Production** value. The same Netlify project may already have this variable set.
+6. Deploy → check `/api/ai` via the website (the endpoint requires POST), start a lesson, test the coach. The site works without the key, but AI responses will show a configuration error.
+
+**Important:** Drag-and-drop uploading `public/` to Netlify Drop does not deploy serverless functions. Deploy from Git or use Netlify CLI.
+
+## Local testing
+
+`npm test` validates course structure. `npm run build` copies the static site into `dist/`.
+
+To see UI only: `python3 -m http.server 8080 --directory public`. Open `http://localhost:8080` (Groq AI will not work without a function server).
+
+To test AI: install Netlify CLI, set a local key in a file not committed to git, and use `netlify dev`. The server endpoint is `/api/ai` and must be served by Netlify functions.
+
+## Curriculum and capabilities
+
+- 11 independent paths: Basics, Everyday, Work, Business, Travel, Interviews, Tech, Social, Customer Service, Study, Advanced Speaking.
+- 132 authored micro-lessons (12 per course). Each has a topic, 4 translated phrases, spoken sample sentence with translation, a teaching tip, a practice dialogue assembled from these phrases, and 3 multiple-choice comprehension tasks. **The dialogue is a drill assembled from the four phrases, not a natural-language transcript**. For richer context, students can ask AI for roleplay.
+- Proactive mentor on first lesson visit and after quizzes; optional on/off. Adaptive explanations, plan generation, simulated roleplay.
+- Local progress, achievements, courses, spaced-repetition review, saved words, import/export, PWA, dark theme.
+- Browser speech synthesis and optional SpeechRecognition where supported. **No objective accent scoring.**
+- Unlimited free static content in this MVP; $1 subscription is informational only, not a real checkout.
+
+## Limitations before commercial launch
+
+- No real login, Firebase sync, database, payment gateway, or subscription enforcement.
+- Server endpoint is **public**. Browser same-origin checking does NOT provide real API security; in-memory IP throttling is best effort only, unreliable across serverless instances, and can be bypassed by non-browser clients. **Do not launch to large anonymous public audiences with your key until server authentication, persistent quota enforcement, anti-abuse controls and budget caps are in place**.
+- Demo AI client permits 8 successful calls per day per browser. This is a UX guardrail, not an enforceable server-side quota. Groq/Netlify free tiers have their own limits.
+- AI requires internet. Local browser storage is per-device, may be cleared by the user, and is not synced; exported JSON helps make a backup.
+- Lesson pack is suitable for an MVP; formal pedagogical review, native-speaker dialogue editing, accessibility, privacy notice and legal/payment setup are still required before commercial scale.
+- Groq model defaults to `openai/gpt-oss-20b` (the old `llama-3.3-70b-versatile` is deprecated for Free/Developer accounts as of August 2026).
+- Brand and domain/trademark availability should be checked before public commercial use.
+
+**Never paste a Groq API key into `public/` files, the README, chats, or a public repo.**
