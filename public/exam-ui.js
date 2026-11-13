@@ -1,0 +1,72 @@
+import {getCourse} from './courses.js';
+import {buildExam,gradeExam,EXAM_QUESTIONS,PASS_SCORE} from './exam.js';
+const $=id=>document.getElementById(id);
+const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const courseId=new URLSearchParams(location.search).get('course')||'';
+const course=getCourse(courseId);
+const exam={mode:'loading',questions:[],attemptId:null,answers:{},index:0,result:null,busy:false};
+$('back').href='/app.html';
+if(!course){$('exam').innerHTML='<p>Курс не найден. <a href="/app.html">Вернуться к урокам</a></p>';}
+else{
+ $('title').textContent=course.title;
+ start();
+}
+async function start(){
+ exam.mode='loading';exam.questions=[];exam.answers={};exam.index=0;exam.result=null;exam.busy=false;
+ $('exam').innerHTML='<div class="loading">Готовим 20 вопросов по материалу курса…</div>';
+ try{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),6500);
+  let response;
+  try{response=await fetch('/api/exam?course='+encodeURIComponent(courseId),{cache:'no-store',signal:controller.signal})}finally{clearTimeout(timeout)}
+  if(!response.ok)throw Error('Сервер пока не подключён');
+  const data=await response.json();
+  if(data.mode!=='verified'||!Array.isArray(data.questions)||data.questions.length!==EXAM_QUESTIONS)throw Error('Серверный экзамен недоступен');
+  exam.mode='verified';exam.questions=data.questions;exam.attemptId=data.attemptId;
+ }catch{
+  const local=buildExam(courseId,(Date.now()>>>0) ^ 4556);
+  exam.mode='practice';exam.questions=local.questions;exam.attemptId=null;
+ }
+ render();
+}
+function render(){
+ const root=$('exam');
+ if(exam.result){renderResult();return;}
+ if(exam.index>=EXAM_QUESTIONS){renderFinish();return;}
+ const q=exam.questions[exam.index],selected=exam.answers[q.id];
+ root.innerHTML='<div class="fade"><div class="exam-top"><span class="badge">'+(exam.mode==='verified'?'Серверный экзамен':'Тренировочный режим')+'</span><span class="badge gray">Вопрос '+(exam.index+1)+' / '+EXAM_QUESTIONS+'</span></div><div class="bar"><span style="width:'+((exam.index+1)/EXAM_QUESTIONS*100)+'%"></span></div><div class="question">'+escape(q.prompt)+'</div><div class="options">'+q.options.map((choice,i)=>'<button type="button" class="choice '+(selected===choice?'selected':'')+'" data-exam-answer="'+i+'"><span class="choice-letter">'+String.fromCharCode(65+i)+'</span>'+escape(choice)+'</button>').join('')+'</div><div class="buttons"><button class="btn secondary" id="prev" '+(exam.index===0?'disabled':'')+'>← Назад</button><button class="btn" id="next" '+(selected===undefined?'disabled':'')+'>'+(exam.index===EXAM_QUESTIONS-1?'Завершить ответы →':'Далее →')+'</button></div></div>';
+ root.querySelectorAll('[data-exam-answer]').forEach(btn=>btn.addEventListener('click',()=>{
+  exam.answers[q.id]=q.options[Number(btn.dataset.examAnswer)];render();
+ }));
+ root.querySelector('#prev').addEventListener('click',()=>{exam.index=Math.max(0,exam.index-1);render()});
+ root.querySelector('#next').addEventListener('click',()=>{if(exam.answers[q.id]===undefined)return;exam.index++;render()});
+}
+function renderFinish(){
+ const v=exam.mode==='verified';
+ $('exam').innerHTML='<div class="fade"><span class="badge">'+(v?'Подтверждение данных':'Тренировочный режим')+'</span><h2 class="final-title">Все 20 ответов готовы</h2><p class="subtle">Теперь можно получить результат. Баллы начисляются по 5 за каждый верный ответ. Проходной уровень — 90/100.</p>'+(v?'<div class="field"><label for="recipient">Имя для сертификата Easay</label><input id="recipient" autocomplete="name" maxlength="75" placeholder="Как указать имя на сертификате" required></div><label class="check-line"><input id="publishName" type="checkbox"><span>Разрешаю показывать указанное имя на общедоступной странице проверки сертификата. Если не отмечать, имя будет видно только на моей локальной копии PDF.</span></label>':'<div class="notice warn">Сервер сертификатов ещё не подключён. Это тренировочный экзамен: результат доступен, но подтверждённый PDF и публичная проверка пока не выдаются.</div>')+'<div class="buttons"><button class="btn secondary" id="back">← К вопросам</button><button class="btn" id="submit">Показать результат →</button></div><p class="subtle" id="failure" role="alert"></p></div>';
+ $('exam').querySelector('#back').addEventListener('click',()=>{exam.index=19;render()});
+ $('exam').querySelector('#submit').addEventListener('click',submit);
+}
+async function submit(){
+ if(exam.busy)return;
+ const verified=exam.mode==='verified';
+ const name=verified?$('recipient').value.replace(/\s+/g,' ').trim():'';
+ const publishName=verified?$('publishName').checked:false;
+ if(verified&&name.length<2){$('failure').textContent='Укажи имя для сертификата (минимум два символа).';return}
+ exam.busy=true;$('submit').disabled=true;
+ if(!verified){exam.result={...gradeExam(exam.questions,exam.answers),verified:false};render();return}
+ try{
+  const response=await fetch('/api/exam',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({attemptId:exam.attemptId,answers:exam.answers,name,publishName})});
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||'Не удалось проверить ответы');
+  exam.result=data;
+  if(data.certificateId)try{const old=JSON.parse(localStorage.getItem('easay:cert-names:v1')||'{}');old[data.certificateId]=name;localStorage.setItem('easay:cert-names:v1',JSON.stringify(old))}catch{}
+  render();
+ }catch(e){exam.busy=false;$('submit').disabled=false;$('failure').textContent=e.message+' — результаты и сертификат не подтверждены.'}
+}
+function renderResult(){
+ const data=exam.result,passed=Boolean(data?.passed),verified=Boolean(data?.verified);
+ const certificate=verified&&data.certificateId?'<a class="certificate-link" href="'+escape(data.certificateUrl)+'">Открыть сертификат и сохранить PDF ↗</a>':'';
+ $('exam').innerHTML='<div class="fade"><span class="badge">'+(verified?'Проверено сервером Easay':'Тренировочный результат')+'</span><div class="big-score">'+Number(data.score)+'<span class="score-out"> / 100</span></div><h2 class="result-title">'+(passed?(verified?'Экзамен сдан. Поздравляем!':'Отличный тренировочный результат!'):'Есть что повторить — это нормально.')+'</h2><p class="subtle">Правильных ответов: '+Number(data.correct)+' из '+EXAM_QUESTIONS+'. Для подтверждённого сертификата нужен результат от '+PASS_SCORE+' баллов.</p>'+certificate+'<div class="notice '+(passed?'good':'warn')+'">'+(verified?(passed?'Сертификат выдан Easay на основании проверенных сервером ответов. Ссылка открывает страницу с публичной проверкой.':'Для следующей попытки повтори сложные фразы курса.'): 'Это не подтверждённый сертификат. Чтобы получить документ с проверкой по ссылке, потребуется подключить Cloudflare D1.')+'</div><div class="buttons"><a class="btn secondary" href="/app.html">← Вернуться в Easay</a><button class="btn" id="restart">Пройти ещё раз →</button></div></div>';
+ $('restart').addEventListener('click',start);
+}
