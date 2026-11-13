@@ -49,6 +49,7 @@ function openMotivation(){
 function finish(){
  const selected=document.querySelector('input[name=motivation]:checked');
  localSave(key,'done');
+ const chosen=$('learnerName')?.value.trim();if(chosen)localSave('easay:intro-name:v1',chosen.slice(0,30));
  localSave('easay:motivation:v1',selected?.value||'gentle');
  window.location.assign('/app.html');
 }
