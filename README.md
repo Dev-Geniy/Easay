@@ -72,3 +72,7 @@ To test AI: install Netlify CLI, set a local key in a file not committed to git,
 - Offline exams are practice only. With Cloudflare Pages Functions + D1, answers are graded server-side and a verifiable Easay-internal certificate is issued at 90+/100.
 - Certificate PDF: use the native browser print dialog from certificate.html and select Save as PDF. Public names are opt-in; certificates do not claim external accreditation or prove identity.
 - Set up D1 by running db/schema.sql; bind D1 to EASAY_DB in Cloudflare Pages and set CERT_HASH_SECRET (random 24+ chars). See docs/certificates.md.
+
+## Easay 5.3 — Visual marketing landing
+
+Four optimized original Easay-generated WebP illustrations are stored in `public/images/` (hero, speaking practice, certificates, decorative US flag). The marketing home incorporates parallax on desktop, staggered reveal and a floating phrase note, while keeping all text readable and disabling motion for `prefers-reduced-motion`. No JavaScript, remote image host or extra packages are required for the images to display. The student dashboard reuses a subdued hero accent without changing course progress or functionality.

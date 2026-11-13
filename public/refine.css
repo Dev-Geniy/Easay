@@ -50,3 +50,8 @@ body{background:linear-gradient(180deg,#f9fbff,#f3f6fc)}
 .dark .dialogue-chat{background:#1c293f}.dark .tense-tag{color:#c0ceff}
 @media(max-width:700px){.course-final{flex-direction:column;align-items:stretch;padding:19px}.course-final .btn{width:100%}.badge-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.pair-turns>div{flex-wrap:wrap}.pair-turns>div small{flex-basis:100%;padding-left:41px}.friend-invite{padding:16px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Landing art reuse: low-contrast, decorative accent in the student's home. */
+.home-primary:after{content:"";pointer-events:none;position:absolute;z-index:0;right:-3%;top:-4%;bottom:-4%;width:47%;background-image:url("/images/hero.webp");background-position:80% center;background-size:cover;opacity:.28;mask-image:linear-gradient(to right,transparent,#000 30%)}
+.home-primary-content{z-index:2;position:relative}
+@media(max-width:680px){.home-primary:after{opacity:.13;width:74%;right:-15%}}

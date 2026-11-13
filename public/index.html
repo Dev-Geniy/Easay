@@ -10,6 +10,8 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="stylesheet" href="/intro.css">
+<link rel="stylesheet" href="/visual.css">
+<link rel="preload" as="image" href="/images/hero.webp" type="image/webp">
 <title>Easay — начни говорить по-английски</title>
 </head>
 <body>
@@ -25,7 +27,7 @@
  <section class="hero section-pad">
   <div class="hero-layout">
    <div class="hero-copy">
-    <div class="eyebrow"><span class="eyebrow-mark"></span> АНГЛИЙСКИЙ, КОТОРЫЙ ВПИСЫВАЕТСЯ В ЖИЗНЬ</div>
+    <div class="eyebrow hero-eyebrow"><img class="hero-flag" src="/images/flag.webp" alt="" aria-hidden="true" width="52" height="52" decoding="async"> АНГЛИЙСКИЙ ДЛЯ РЕАЛЬНОЙ ЖИЗНИ</div>
     <h1>Начни говорить.<br><span>Даже если раньше не получалось.</span></h1>
     <p class="hero-description">Небольшой урок сегодня — больше уверенности завтра. Учись для общения, работы, бизнеса и путешествий. С ИИ-наставником, который помогает на каждом шаге.</p>
     <div class="hero-actions">
@@ -34,15 +36,9 @@
     </div>
     <div class="hero-proof"><span><b>132</b> готовых урока</span><i></i><span><b>11</b> направлений</span><i></i><span><b>0 ₴</b> обязательных платежей</span></div>
    </div>
-   <div class="hero-visual" aria-label="Пример разговора из первого урока">
-    <div class="visual-top"><span class="visual-pulse"></span><span>ТВОЙ ПЕРВЫЙ ДИАЛОГ</span><span class="visual-tag">A1 · START</span></div>
-    <div class="visual-center">
-     <div class="speaker"><span class="speaker-avatar">E</span><div><b>Easay</b><small>Твой учебный помощник</small></div></div>
-     <div class="speak-message">Hi! Nice to meet you.<span>Привет! Рад знакомству.</span></div>
-     <div class="user-message">Nice to meet you too!</div>
-    </div>
-    <div class="visual-footer"><div class="visual-progress"><span></span></div><div><span>01 / 04</span><strong>Ты уже можешь говорить.</strong></div></div>
-    <div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+   <div class="hero-art" data-reveal aria-label="Иллюстрация изучения английского языка">
+    <img src="/images/hero.webp" width="1060" height="597" alt="Обучение английскому: разговор, книги и символы США" fetchpriority="high" decoding="async" data-parallax="0.12">
+    <div class="hero-floating-note" aria-hidden="true"><span class="note-dot"></span><strong>Hi! Nice to meet you.</strong><small>Твоя первая фраза</small></div>
    </div>
   </div>
  </section>
@@ -89,6 +85,18 @@
    <article class="benefit-card"><span class="feature-mark">03</span><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/><path d="m17 14 3 3-3 3"/></svg></div><h3>Сразу к разговору</h3><p>Повседневные фразы, рабочие ситуации и тренировки с произношением вместо сухой теории.</p></article>
   </div>
  </section>
+ <section class="speaking-showcase section-pad" id="speaking">
+  <div class="speaking-layout">
+   <div class="speaking-media" data-reveal><img src="/images/speaking.webp" width="620" height="465" alt="Два ученика практикуют английский диалог" loading="lazy" decoding="async" data-parallax="0.085"><span class="speaking-floating-pill" aria-hidden="true">Practice makes progress</span></div>
+   <div class="speaking-copy" data-reveal>
+    <div class="eyebrow"><span class="eyebrow-mark"></span> ГОВОРИ, А НЕ ТОЛЬКО ЧИТАЙ</div>
+    <h2>Английский, который можно <span>использовать сегодня.</span></h2>
+    <p>Не нужно ждать, пока выучишь сотни правил. Начни с короткого диалога, повторяй живые фразы и приглашай друга потренировать две роли вместе.</p>
+    <div class="speaking-highlights"><span>Диалоги по ролям</span><span>Удобное произношение</span><span>Практика в своём темпе</span></div>
+    <a class="text-action" href="#first-lesson">Попробовать первый разговор <span aria-hidden="true">→</span></a>
+   </div>
+  </div>
+ </section>
  <section class="course-section section-pad" id="courses">
   <div class="section-head compact"><div class="eyebrow"><span class="eyebrow-mark"></span> НАПРАВЛЕНИЯ</div><h2>У каждого свой английский</h2><p>Выбирай цель: жить, работать, путешествовать, общаться — или всё сразу.</p></div>
   <div class="course-list">
@@ -99,6 +107,19 @@
    <div class="course-short"><span class="course-number">05</span><div><strong>Tech, Study & More</strong><p>IT, учёба, собеседования и сервис</p></div><span class="course-level">A2–B2</span></div>
   </div>
   <a class="button button-dark" href="#first-lesson">Начать с первого урока <span aria-hidden="true">↗</span></a>
+ </section>
+ <section class="certificate-showcase section-pad" id="achievements">
+  <div class="certificate-layout">
+   <div class="certificate-copy" data-reveal>
+    <div class="eyebrow"><span class="eyebrow-mark"></span> ВИДИМЫЙ РЕЗУЛЬТАТ</div>
+    <h2>Маленькие победы. <span>Большая уверенность.</span></h2>
+    <p>Отмечай успехи в уроках, собирай достижения и проверяй знания на финальном экзамене каждого курса.</p>
+    <div class="certificate-score"><strong>90<span>/100</span></strong><div><b>Для сертификата Easay</b><small>После итогового экзамена с серверной проверкой</small></div></div>
+    <p class="certificate-disclaimer">Сертификат Easay подтверждает результат внутреннего экзамена и не является государственной аккредитацией.</p>
+    <a class="text-action" href="/app.html">Посмотреть курсы <span aria-hidden="true">→</span></a>
+   </div>
+   <div class="certificate-media" data-reveal><img src="/images/certificate.webp" width="620" height="465" alt="Иллюстрация сертификата, учебных достижений и прогресса" loading="lazy" decoding="async" data-parallax="0.06"></div>
+  </div>
  </section>
  <section class="mission-section section-pad" id="mission">
   <div class="mission-layout">
@@ -122,4 +143,5 @@
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script type="module" src="/intro.js"></script>
+<script type="module" src="/visual.js"></script>
 </body></html>
