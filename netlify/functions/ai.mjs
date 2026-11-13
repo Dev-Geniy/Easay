@@ -9,7 +9,7 @@ const policy={
  feedback:'Analyze the provided answers and mistakes accurately; if no mistakes, acknowledge specific success. Give one corrective mini-rule and a short task. Do not invent a mistake. Max 120 words.',
  practice:'Create one level-appropriate English exercise related to lesson topic, do not give the answer until learner attempts it. Max 110 words.',
  roleplay:'Act as an English conversation partner for this scenario. Respond mainly in easy English appropriate to level. If learner made a meaningful English error, briefly point out ONE correction in Russian, then continue with ONE conversational question. Never claim to score pronunciation from text. Max 100 words.',
- plan:'Use course goal, lesson completion and difficulties to propose specific next actions and one small homework task. No invented achievements. Max 160 words.',
+ plan:'Help the learner follow the REAL seven-day plan supplied by the app. Offer concise actionable advice based on listed lesson titles and learner level. Do not make up progress, lessons or achievements. Never use Markdown tables or code blocks; at most 3 short bullets. Max 130 words.',
  chat:'Help as an English tutor. Give direct explanation, 1–2 English examples with Russian translation, and one follow-up question. Max 150 words.'
 };
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...extra}});
