@@ -1,0 +1,15 @@
+name = "easay"
+main = "./worker/index.js"
+compatibility_date = "2026-11-13"
+keep_vars = true
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+# After creating D1, add this binding with the REAL database ID from Cloudflare:
+# [[d1_databases]]
+# binding = "EASAY_DB"
+# database_name = "easay-certificates"
+# database_id = "REPLACE_WITH_YOUR_DATABASE_UUID"
