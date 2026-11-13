@@ -53,3 +53,12 @@ To test AI: install Netlify CLI, set a local key in a file not committed to git,
 - Changes to `manifest.webmanifest` set the installed PWA start page to `/app.html`.
 - The AI key stays exclusively in Netlify Functions secrets; no credentials in browser code.
 - The application is free. AI features remain subject to service availability and published usage limits.
+
+## Easay 5.0 — guided teaching and streamlined onboarding
+
+- All 132 lessons retain their four original stages (intro + phrase, four phrase cards, dialogue, three-question test).
+- `public/teacher.js` provides four deterministic, per-lesson Russian narrations and tense examples. No API calls are consumed by the scripted teacher.
+- Text is shown with a typing animation if speech is switched off or Russian speech synthesis is unavailable. Web Speech API support and voices vary by browser and operating system.
+- The intro lesson stores the entered nickname locally (only when supplied) so the post-lesson onboarding does not ask twice. Onboarding chooses goal, level and pace.
+- The home dashboard prioritizes a single Continue button with course progress and a short coach suggestion.
+- The settings screen controls teacher speech and study pace. AI chat, repeat cards and quizzes remain.
