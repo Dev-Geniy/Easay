@@ -3,6 +3,7 @@ import {getOrCreateLearnerId} from './learner-identity.js';
 import {readExamSession,saveExamSession,clearExamSession} from './exam-session.js';
 import {deckForCourse} from './flashcards.js';
 import {buildExam,gradeExam,EXAM_QUESTIONS,PASS_SCORE} from './exam.js';
+import {socialShareUrls,copyPublicLink,sharePublicLink} from './share.js';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const courseId=new URLSearchParams(location.search).get('course')||'';
@@ -130,7 +131,33 @@ async function submit(){
 }
 function renderResult(){
  const data=exam.result,passed=Boolean(data?.passed),verified=Boolean(data?.verified);
- const certificate=verified&&data.certificateId?'<a class="certificate-link" href="'+escape(data.certificateUrl)+'">Открыть сертификат и сохранить PDF ↗</a>':'';
- $('exam').innerHTML='<div class="fade"><span class="badge">'+(verified?'Проверено сервером Easay':'Тренировочный результат')+'</span><div class="big-score">'+Number(data.score)+'<span class="score-out">% правильных ответов</span></div><h2 class="result-title">'+(passed?(verified?'Экзамен сдан. Поздравляем!':'Отличный тренировочный результат!'):'Есть что повторить — это нормально.')+'</h2><p class="subtle">Правильных ответов: '+Number(data.correct)+' из '+EXAM_QUESTIONS+'. Для подтверждённого сертификата нужен результат от '+PASS_SCORE+' баллов.</p>'+certificate+'<div class="notice '+(passed?'good':'warn')+'">'+(verified?(passed?'Сертификат содержит ФИО, введённое учеником, и процент правильных ответов, рассчитанный сервером. Личность по документам не проверяется.':'Для следующей попытки повтори сложные фразы курса.'): 'Это не подтверждённый сертификат. Чтобы получить документ с проверкой по ссылке, потребуется подключить Cloudflare D1.')+'</div><div class="buttons"><a class="btn secondary" href="/app.html">← Вернуться в Easay</a><button class="btn" id="restart">Пройти ещё раз →</button></div></div>';
+ // Never offer a publicly verifiable share link for practice or failed exams.
+ const certId=verified&&passed&&/^ES-[A-Z0-9]{18}$/.test(data?.certificateId||'')?data.certificateId:null;
+ const certificateUrl=certId?new URL('/certificate.html?id='+encodeURIComponent(certId),location.origin).href:null;
+ const certificate=certificateUrl?'<a class="certificate-link" href="'+escape(certificateUrl)+'">Открыть сертификат и сохранить PDF ↗</a>':'';
+ const message='Мой результат внутреннего экзамена Easay — проверь сертификат по ссылке.';
+ const socials=certificateUrl?socialShareUrls(certificateUrl,message):null;
+ const shareBlock=certificateUrl?
+  '<section class="exam-certificate-share" aria-label="Поделиться сертификатом"><strong>Поделиться сертификатом</strong>'+
+  '<p>Делись ссылкой на проверяемый результат. ФИО показывается публично только с твоего согласия.</p>'+
+  '<div class="share-networks">'+
+   '<a class="share-button" href="'+escape(socials.telegram)+'" target="_blank" rel="noopener noreferrer"><span class="share-mark telegram" aria-hidden="true">✈</span>Telegram</a>'+
+   '<a class="share-button" href="'+escape(socials.whatsapp)+'" target="_blank" rel="noopener noreferrer"><span class="share-mark whatsapp" aria-hidden="true">◉</span>WhatsApp</a>'+
+   '<a class="share-button" href="'+escape(socials.facebook)+'" target="_blank" rel="noopener noreferrer"><span class="share-mark facebook" aria-hidden="true">f</span>Facebook</a></div>'+
+  '<div class="exam-share-actions"><button class="share-action" type="button" id="examCopyCertificate">Скопировать ссылку</button>'+
+   (typeof navigator.share==='function'?'<button class="share-action" type="button" id="examNativeShare">Поделиться с телефона ↗</button>':'')+'</div></section>':'';
+ $('exam').innerHTML='<div class="fade"><span class="badge">'+(verified?'Проверено сервером Easay':'Тренировочный результат')+'</span><div class="big-score">'+Number(data.score)+'<span class="score-out">% правильных ответов</span></div><h2 class="result-title">'+(passed?(verified?'Экзамен сдан. Поздравляем!':'Отличный тренировочный результат!'):'Есть что повторить — это нормально.')+'</h2><p class="subtle">Правильных ответов: '+Number(data.correct)+' из '+EXAM_QUESTIONS+'. Для подтверждённого сертификата нужен результат от '+PASS_SCORE+' баллов.</p>'+certificate+shareBlock+'<div class="notice '+(passed?'good':'warn')+'">'+(verified?(passed?'Сертификат содержит ФИО, введённое учеником, и процент правильных ответов, рассчитанный сервером. Личность по документам не проверяется.':'Для следующей попытки повтори сложные фразы курса.'): 'Это не подтверждённый сертификат. Чтобы получить документ с проверкой по ссылке, потребуется подключить Cloudflare D1.')+'</div><div class="buttons"><a class="btn secondary" href="/app.html">← Вернуться в Easay</a><button class="btn" id="restart">Пройти ещё раз →</button></div></div>';
  $('restart').addEventListener('click',start);
+ if(certificateUrl){
+  $('examCopyCertificate').addEventListener('click',async()=>{
+   const copied=await copyPublicLink(certificateUrl);
+   $('examCopyCertificate').textContent=copied==='copied'?'Ссылка скопирована ✓':copied==='manual'?'Скопируй ссылку в окне':'Копирование недоступно';
+  });
+  $('examNativeShare')?.addEventListener('click',async()=>{
+   try{
+    const result=await sharePublicLink({url:certificateUrl,title:'Сертификат Easay',text:'Мой результат внутреннего экзамена Easay'});
+    if(result==='unsupported')await copyPublicLink(certificateUrl);
+   }catch{$('examNativeShare').textContent='Не получилось — скопируй ссылку';}
+  });
+ }
 }

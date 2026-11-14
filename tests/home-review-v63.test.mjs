@@ -88,7 +88,7 @@ test('scheduled reviews use exactly three ratings; free practice does not affect
 });
 test('PWA precaches the new assets and does not require an external service',()=>{
  const sw=read('../public/sw.js'),html=read('../public/app.html');
- assert.match(sw,/easay-static-v6\.3.2/);
+ assert.match(sw,/easay-static-v6\.3.3/);
  assert.match(sw,/['"]\/review-scheduler\.js['"]/);
  assert.match(sw,/['"]\/home-review\.css['"]/);
  assert.match(html,/\/home-review\.css/);

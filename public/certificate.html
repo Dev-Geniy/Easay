@@ -1,4 +1,5 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Сертификат Easay — проверка</title>
+<link rel="stylesheet" href="/share.css">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f1f5fc;color:#17233a;font-family:Arial,system-ui,sans-serif}.tools{max-width:1120px;margin:18px auto;display:flex;justify-content:space-between;gap:12px;padding:0 20px}.tools a{color:#2d54d5;text-decoration:none;font-weight:700}.buttons{display:flex;gap:8px}.btn{border:0;background:#315cf5;color:white;border-radius:12px;padding:12px 17px;font-weight:750;cursor:pointer}.btn.alt{background:white;color:#274680;border:1px solid #dce5f4}
 .notice{max-width:1120px;margin:16px auto 30px;padding:0 20px;font-size:12px;color:#708098;line-height:1.6}.error{max-width:800px;margin:48px auto;padding:28px;border-radius:18px;background:white;font-size:17px;line-height:1.7}
@@ -7,12 +8,21 @@
 @media(max-width:650px){.certificate{padding:25px;border-width:8px;min-height:640px}.headline{font-size:33px}.course{font-size:21px}.meta{grid-template-columns:1fr 1fr}.tools{flex-wrap:wrap}}
 @media print{@page{size:A4 landscape;margin:0}body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.tools,.notice,.error{display:none!important}.certificate{width:297mm;height:210mm;max-width:none;min-height:0;margin:0;border:10mm solid #e9effd;padding:13mm 18mm;box-shadow:none;page-break-inside:avoid}.eyebrow{margin-top:12mm}.headline{font-size:43pt}.recipient{font-size:30pt;margin:12mm 0 4mm}.course{font-size:23pt}}
 </style></head><body>
-<header class="tools"><a href="/app.html">← Easay</a><div class="buttons"><button class="btn alt" id="copy" hidden>Скопировать ссылку</button><button class="btn" id="print" hidden>Сохранить PDF</button></div></header>
+<header class="tools"><a href="/app.html">← Easay</a><div class="buttons"><button class="btn alt" id="shareNative" type="button" hidden>Поделиться ↗</button><button class="btn alt" id="copy" hidden>Скопировать ссылку</button><button class="btn" id="print" hidden>Сохранить PDF</button></div></header>
 <div class="error" id="error" role="alert">Проверяем номер в реестре Easay…</div>
 <section class="certificate" id="certificate" hidden aria-label="Сертификат Easay"><div class="inner"><div class="brand"><span class="mark">e</span>easay.</div><div class="eyebrow">CERTIFICATE OF ASSESSMENT</div>
 <h1 class="headline">СЕРТИФИКАТ<br>О СДАЧЕ ЭКЗАМЕНА</h1><p class="sub">Подтверждает успешную сдачу внутреннего экзамена Easay по английскому языку.</p>
 <p class="sub" style="font-size:11px;letter-spacing:.8px;margin-top:19px">ФИО, УКАЗАННОЕ УЧЕНИКОМ</p><div class="recipient" id="name">ФИО не опубликовано</div><div class="course" id="course">English</div>
 <div class="meta"><div><small>РЕЗУЛЬТАТ ТЕСТА</small><b id="score">—</b></div><div><small>ДАТА</small><b id="date">—</b></div><div><small>НОМЕР</small><b id="id">—</b></div></div>
 <div class="verify" id="link"></div><div class="disclaimer">Сертификат Easay подтверждает внутренний экзамен. Не является государственным дипломом или независимой аккредитацией. Личность по документам и завершение всех уроков курса сервером не проверялись. ФИО введено учеником самостоятельно. Процент результата рассчитан сервером из 40 ответов.</div></div></section>
+<section class="cert-share-panel" id="certificateSharePanel" aria-label="Поделиться сертификатом" hidden>
+ <h2>Поделиться сертификатом</h2>
+ <p>Отправь ссылку на проверку результата. Если ты не разрешал публикацию ФИО, по общей ссылке имя будет скрыто; на твоём устройстве оно может отображаться из локально сохранённых данных.</p>
+ <div class="share-networks" aria-label="Социальные сети">
+  <a class="share-button" href="/" data-share-network="telegram" target="_blank" rel="noopener noreferrer"><span class="share-mark telegram" aria-hidden="true">✈</span>Telegram</a>
+  <a class="share-button" href="/" data-share-network="whatsapp" target="_blank" rel="noopener noreferrer"><span class="share-mark whatsapp" aria-hidden="true">◉</span>WhatsApp</a>
+  <a class="share-button" href="/" data-share-network="facebook" target="_blank" rel="noopener noreferrer"><span class="share-mark facebook" aria-hidden="true">f</span>Facebook</a>
+ </div>
+</section>
 <p class="notice">Для сохранения PDF нажми кнопку «Сохранить PDF» и выбери «Сохранить в PDF» в диалоге печати. Публичная проверка требует подключённого реестра Cloudflare D1. Имя появляется публично только с согласия ученика.</p>
 <script type="module" src="/certificate.js"></script></body></html>
