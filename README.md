@@ -99,3 +99,10 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - Next / Back / Skip, Escape, keyboard arrows and mobile layouts are supported. It runs once after onboarding (or after upgrade), excluding invitation deep links. Restart via Settings.
 - Tour completion uses a separate localStorage flag `easay:tour:v1`; the tour never changes saved learner progress or sends AI requests.
 - `public/tour.css` boosts the single primary action per screen with restrained contrast and supports reduced-motion preferences.
+
+## Easay 5.7 — support and SkyKids in onboarding tour
+
+- The penultimate guided-tour step spotlights the **existing donation card in the app footer** after navigating to Settings and scrolling the card into view.
+- The tooltip explains that Easay is free, support is voluntary, and **50% of donations** are directed to meals and development for children in the SkyKids children's club and teen center.
+- The final step returns to the main Continue Learning button. No donation click, payment or outbound navigation is triggered by the tour.
+- Offline cache advanced to v5.7; the spotlight step is covered by automated tests.

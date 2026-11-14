@@ -18,6 +18,7 @@ export const TOUR_STEPS=Object.freeze([
  {page:'mentor',target:'.mentor-compose',title:'Задай любой вопрос',description:'Напиши вопрос здесь. Наставник использует твой учебный контекст.'},
  {page:'mentor',target:'#avatar',title:'Настройки',description:'Здесь можно поменять цель, уровень и удобный ритм обучения.'},
  {page:'profile',target:'#profilePace',title:'Твой темп',description:'Выбери комфортный ритм. Все изменения сохраняются по кнопке ниже.'},
+ {page:'profile',target:'.app-charity',title:'Бесплатно — с добрым делом',description:'Easay остаётся бесплатным благодаря добровольной поддержке. 50% донатов мы направляем на питание и развитие детей детского клуба и подросткового центра SkyKids. Поддержка — только по желанию.'},
  {page:'home',target:'.home-main-button',title:'Готово. Можно начинать!',description:'Теперь ты знаешь главное. Возвращайся к этой кнопке, когда захочешь продолжить.'}
 ]);
 export function createTour({navigate,getPage,storage=window.localStorage}){
@@ -87,6 +88,7 @@ export function createTour({navigate,getPage,storage=window.localStorage}){
    document.addEventListener('keydown',keyHandler,true);
   }
   const s=TOUR_STEPS[index];
+  root.dataset.spotlight=s.target==='.app-charity'?'charity':'regular';
   root.querySelector('#tourTitle').textContent=s.title;
   root.querySelector('#tourDescription').textContent=s.description;
   root.querySelector('#tourCount').textContent='ЗНАКОМСТВО · '+(index+1)+' / '+TOUR_STEPS.length;
@@ -96,7 +98,7 @@ export function createTour({navigate,getPage,storage=window.localStorage}){
   const target=pick(s.target);
   if(target){
    // Keep active navigation and focusable controls in view without activating them.
-   target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+   target.scrollIntoView({block:s.target==='.app-charity'?'center':'nearest',inline:'nearest',behavior:'instant'});
   }
   schedule();
   root.querySelector('.tour-next').focus({preventScroll:true});

@@ -1,4 +1,4 @@
-const CACHE='easay-static-v5.6';
+const CACHE='easay-static-v5.7';
 const ASSETS=['/','/index.html','/app.html','/intro.css','/visual.css','/intro.js','/visual.js','/intro-logic.js','/ui.css','/guided.css','/icons.js','/app.js','/teacher.js','/refine.css','/minimal.css','/tour.css','/tour.js','/certificate.js','/certificate.html','/exam.css','/exam-ui.js','/exam.html','/exam.js','/courses.js','/format.js','/plan.js','/styles.css','/icon.svg','/icon-192.png','/icon-512.png','/manifest.webmanifest','/images/hero.webp','/images/speaking.webp','/images/certificate.webp','/images/flag.webp'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('easay-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})())});
