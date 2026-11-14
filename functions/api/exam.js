@@ -1,16 +1,25 @@
-// Cloudflare Pages Functions: GET starts a timed exam, POST grades it server-side.
+// Cloudflare Pages Functions: GET starts one timed exam per rolling 24 hours; POST grades server-side.
 // Without an EASAY_DB D1 binding, the browser falls back to a local PRACTICE exam.
 // A certificate verifies the final exam, not identity or formal accreditation.
 import {buildExam,gradeExam,PASS_SCORE} from '../../public/exam.js';
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
 const sameOrigin=req=>{const origin=req.headers.get('origin');return !origin||origin===new URL(req.url).origin;};
-async function ipTag(request,env){
+// Stable pseudonymous per-IP hash across dates: a daily salt used to reset at
+// UTC midnight and accidentally permitted multiple attempts in <24 hours.
+const ATTEMPT_WINDOW_MS=24*60*60*1000;
+const digestTag=async(value)=>{
+ const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));
+ return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+};
+async function ipTags(request,env,now){
  const ip=request.headers.get('cf-connecting-ip')||'unknown';
  const secret=env.CERT_HASH_SECRET||'';
  if(secret.length<24)throw Error('CERT_HASH_SECRET not configured');
- const bytes=new TextEncoder().encode(secret+':'+ip+':'+new Date().toISOString().slice(0,10));
- const hashed=await crypto.subtle.digest('SHA-256',bytes);
- return Array.from(new Uint8Array(hashed)).map(b=>b.toString(16).padStart(2,'0')).join('');
+ // Legacy dated tokens are counted during the 24-hour migration period.
+ // Nothing stores or exposes the plaintext IP address.
+ const today=new Date(now).toISOString().slice(0,10);
+ const yesterday=new Date(now-ATTEMPT_WINDOW_MS).toISOString().slice(0,10);
+ return Promise.all([digestTag(secret+':'+ip+':limit-v2'),digestTag(secret+':'+ip+':'+today),digestTag(secret+':'+ip+':'+yesterday)]);
 }
 export async function onRequestGet({request,env}){
  if(!env.EASAY_DB)return json({error:'Серверный экзамен пока не настроен. Доступна тренировка без сертификата.',available:false},503);
@@ -19,10 +28,14 @@ export async function onRequestGet({request,env}){
  const exam=buildExam(course,seed);
  if(!exam)return json({error:'Направление не найдено.'},404);
  try{
-  const ip=await ipTag(request,env);
   const now=Date.now();
-  const count=await env.EASAY_DB.prepare('SELECT COUNT(*) as count FROM exam_attempts WHERE ip_hash=? AND created_at>?').bind(ip,now-86400000).first();
-  if((count?.count||0)>=8)return json({error:'Лимит попыток на сегодня исчерпан. Возвращайся позже.'},429);
+  const [ip,legacyToday,legacyYesterday]=await ipTags(request,env,now);
+  const latest=await env.EASAY_DB.prepare('SELECT MAX(created_at) as last_attempt FROM exam_attempts WHERE ip_hash IN (?,?,?) AND created_at>?')
+   .bind(ip,legacyToday,legacyYesterday,now-ATTEMPT_WINDOW_MS).first();
+  if(latest?.last_attempt!=null){
+   const nextAttemptAt=Number(latest.last_attempt)+ATTEMPT_WINDOW_MS;
+   return json({error:'Серверный экзамен доступен один раз в 24 часа. Следующая попытка — после истечения 24 часов с начала предыдущей.',code:'EXAM_DAILY_LIMIT',nextAttemptAt,available:false,practiceAvailable:true},429);
+  }
   const id=crypto.randomUUID();
   await env.EASAY_DB.prepare('INSERT INTO exam_attempts (id,course_id,questions_json,ip_hash,created_at,expires_at) VALUES (?,?,?,?,?,?)')
    .bind(id,exam.courseId,JSON.stringify(exam.questions),ip,now,now+45*60*1000).run();

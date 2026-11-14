@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS exam_attempts (
   expires_at INTEGER NOT NULL,
   used INTEGER NOT NULL DEFAULT 0
 );
-CREATE INDEX IF NOT EXISTS idx_attempt_ip_day ON exam_attempts(ip_hash, created_at);
+CREATE INDEX IF NOT EXISTS idx_attempt_ip_window ON exam_attempts(ip_hash, created_at);
 CREATE INDEX IF NOT EXISTS idx_attempt_expiration ON exam_attempts(expires_at);
 CREATE TABLE IF NOT EXISTS certificates (
   id TEXT PRIMARY KEY,

@@ -133,3 +133,10 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - Two bottom controls: green **ПЕРЕСДАТЬ** resets the local lesson quiz, and subtle **Продолжить без пересдачи** advances only when the original 2/3 passing criterion has been met. Unpassed lessons remain uncredited.
 - The final 40-question server-verified certificate exam and its existing **Пройти ещё раз** behavior are intentionally unchanged.
 - Same local progress storage, offline lessons, and API call quotas. Keyboard Escape, dialog focus handling and reduced-motion support are included.
+
+## Easay exam rate limit: one server attempt per rolling 24 hours
+
+- Starting a **server-verified final exam** consumes the one permitted attempt for the next 24 hours (measured from its start, not reset at midnight); an attempt expires after 45 minutes.
+- D1 records the hashed IP-based rate-limit key. The identifier is stable across calendar days to enforce a true rolling limit; legacy day-salted hashes from prior releases are also checked for 24 hours.
+- After HTTP 429, students see the next eligible time and can launch an **unlimited practice-only exam** (no certificate). Normal lesson quizzes and AI explanations are unaffected.
+- Note: the current IP-based limit is shared by users connecting through the same public IP. A future authenticated-account limit would allow per-user quotas rather than per-network quotas.
