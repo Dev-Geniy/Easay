@@ -47,3 +47,24 @@ export function scheduleReview(previous,rating,now=Date.now()){
   reviewedAt:now,repetitions:(Number.isInteger(old.repetitions)&&old.repetitions>=0?old.repetitions:0)+1,
   lapses:(Number.isInteger(old.lapses)&&old.lapses>=0?old.lapses:0)+(rating==='again'?1:0)};
 }
+
+// Returns the nearest future scheduled review timestamp, or null if none.
+// Old entries containing only YYYY-MM-DD dates stay supported.
+export function nextReviewAt(savedWords={},reviews={},now=Date.now()){
+ let earliest=null;
+ for(const key of Object.keys(savedWords||{})){
+  const review=reviews?.[key];
+  if(!review||isReviewDue(review,now))continue;
+  let time=null;
+  if(typeof review.dueAt==='number'&&Number.isFinite(review.dueAt))time=review.dueAt;
+  else if(typeof review.due==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(review.due)){
+   time=new Date(review.due+'T00:00:00').getTime();
+  }
+  if(Number.isFinite(time)&&time>now&&(earliest===null||time<earliest))earliest=time;
+ }
+ return earliest;
+}
+export function nextReviewLabel(timestamp){
+ if(!Number.isFinite(timestamp))return '';
+ return new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(timestamp));
+}
