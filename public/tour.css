@@ -1,0 +1,75 @@
+/* Easay 5.6 guided walkthrough and one-clear-action hierarchy. */
+:root{--attention:#315cf5}
+#easay-tour-root{position:fixed;inset:0;z-index:9998;pointer-events:none;font-family:inherit}
+.tour-capture{position:fixed;inset:0;z-index:0;pointer-events:auto;background:transparent}
+.tour-highlight{
+ position:fixed;z-index:1;pointer-events:none;
+ border:2px solid #c3d3ff;
+ border-radius:17px;
+ box-shadow:0 0 0 9999px rgba(15,28,57,.62),0 0 0 7px #a4baff30,0 0 0 1px #fff inset;
+ transition:left .22s ease,top .22s ease,width .22s ease,height .22s ease;
+}
+.tour-popover{
+ position:fixed;z-index:2;pointer-events:auto;max-height:calc(100dvh - 28px);
+ overflow:auto;overscroll-behavior:contain;
+ width:min(365px,calc(100vw - 28px));padding:23px 23px 18px;
+ border:1px solid #e6ecf9;border-radius:23px;
+ background:#fff;box-shadow:0 25px 80px rgba(9,29,77,.24);color:#172844;
+ animation:tourEnter .24s ease both;
+}
+.tour-count{font-size:10px;font-weight:870;letter-spacing:1.45px;color:#3761e0}
+.tour-popover h2{font-size:20px;line-height:1.24;letter-spacing:-.65px;font-weight:860;margin:14px 0 9px}
+.tour-popover p{font-size:13px;line-height:1.68;color:#63728e;margin:0}
+.tour-progress{height:4px;overflow:hidden;border-radius:99px;background:#ecf1ff;margin:21px 0 15px}
+.tour-progress span{display:block;height:100%;background:linear-gradient(90deg,#315cf5,#7897ff);border-radius:99px;transition:width .23s ease}
+.tour-controls,.tour-move{display:flex;align-items:center;gap:9px}
+.tour-controls{justify-content:space-between}
+.tour-controls button{font-size:12px;font-weight:780;cursor:pointer;min-height:37px;border-radius:11px}
+.tour-skip{color:#929eb3;background:transparent;padding:8px}
+.tour-skip:hover{color:#3e5276}
+.tour-back{background:#f3f6fe;color:#50627c;padding:9px 12px}
+.tour-back:disabled{opacity:.45;cursor:not-allowed}
+.tour-next{background:#315cf5;color:#fff;padding:9px 15px;box-shadow:0 6px 14px #315cf526}
+.tour-next:hover{background:#244fe0}
+.tour-controls button:focus-visible{outline:3px solid #a6bdff;outline-offset:2px}
+html.tour-active{overflow:hidden}
+@keyframes tourEnter{from{opacity:.25;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+/* Make one primary action on each page unmistakable, keeping other UI quiet. */
+.home-primary .home-main-button{
+ position:relative;
+ background:#fff!important;color:#254edf!important;
+ box-shadow:0 9px 24px rgba(7,28,91,.24);
+ font-weight:850;min-width:220px;
+}
+.home-primary .home-main-button:hover{transform:translateY(-2px);box-shadow:0 13px 30px rgba(7,28,91,.3)}
+.home-progress-panel{background:#fff}
+.home-guidance{background:#f1f5ff}
+.course-cover [data-action="lesson"],
+.lesson-controls .btn:not(.outline),
+.mentor-compose .mentor-send,
+.review-empty .btn,
+.practice-view .chat-form .btn:last-child{
+ box-shadow:0 5px 17px rgba(45,81,224,.17);
+}
+.course-card:first-child{border-color:#cbdafc}
+.lesson-topcard .focus-phrase{border-color:#d3e0ff}
+.home-links .btn,.mentor-prompt,.quick-card{box-shadow:none}
+.nav-btn.active,.mobile-btn.active{background:#e6eeff!important;color:#2855d9!important}
+.nav-btn.active:before{display:none}
+.guide-launch{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:760;line-height:1.4;padding:12px 15px;border-radius:12px;background:#f0f5ff;color:#2d56bd;border:1px solid #dfebff;cursor:pointer}
+.guide-launch:hover{background:#e5eeff}
+.profile-help{margin:0 0 24px;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:16px 19px;border-radius:17px;background:#f8faff;border:1px solid #e8effb}
+.profile-help span{font-size:13px;font-weight:750;color:#53657e}
+@media(max-width:760px){
+ .tour-popover{padding:20px 19px 16px;border-radius:19px}
+ .tour-popover h2{font-size:18px;margin:11px 0 7px}
+ .tour-popover p{font-size:12px;line-height:1.55}
+ .tour-progress{margin:15px 0 11px}
+ .tour-controls button{min-height:35px}
+ .home-primary .home-main-button{width:100%;min-width:0}
+ .profile-help{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){
+ .tour-highlight,.tour-popover,.tour-progress span{transition:none!important;animation:none!important}
+}
