@@ -49,6 +49,7 @@ function lessonScripts(lesson){
   'Привет! Сегодня тема '+name+'. Фраза дня означает '+ru+'. Прослушай английский пример и произнеси его вслух. Подсказка: '+tidy(lesson.tip)+'.',
   'Теперь четыре выражения. Первое — '+quote(first[1])+'. Второе — '+quote(second[1])+'. Послушай каждую английскую фразу и повтори своим голосом. Если что-то непонятно, вернись к переводу.',
   'Переходим к диалогу. Сначала читай за первого участника, затем за второго. Используй выражения '+quote(third[1])+' и '+quote(fourth[1])+'. Для уверенности прослушай реплики по одной.',
+  'Перед тестом повтори четыре выражения урока. Сначала попробуй вспомнить перевод, затем переверни карточку и проверь себя. После последней карточки откроется тест.',
   'Пора проверить знания по теме '+name+'. Ответь на три коротких вопроса. Если ошибёшься, увидишь верный вариант и сможешь повторить тест.'
  ];
 }
@@ -58,10 +59,10 @@ export const LESSON_SCRIPTS=Object.freeze(Object.fromEntries(ALL_LESSONS.map(les
 export function teacherFor(lessonId,stage=0,score=null){
  const data=LESSON_SCRIPTS[lessonId];
  if(!data)return '';
- if(stage===3&&typeof score==='number'){
+ if(stage===4&&typeof score==='number'){
   if(score>=2)return 'Отличная работа! Правильных ответов: '+score+' из трёх. Урок пройден. Можешь продолжить или повторить изученные выражения.';
   return 'Ты ответил правильно на '+score+' из трёх вопросов. Это часть обучения. Посмотри выделенные ответы и попробуй ещё раз — я рядом.';
  }
- return data.stages[Math.max(0,Math.min(3,stage))];
+ return data.stages[Math.max(0,Math.min(4,stage))];
 }
 export function timelineFor(lessonId){return LESSON_SCRIPTS[lessonId]?.timeline||null;}
