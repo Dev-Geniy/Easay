@@ -1,9 +1,9 @@
 {
   "name": "easay",
-  "version": "5.8.0",
+  "version": "5.9.0",
   "private": true,
   "type": "module",
-  "description": "Offline-first English courses + optional Groq mentor via Netlify Functions",
+  "description": "Offline-first English learning courses + Groq AI mentor on Cloudflare Workers",
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs"

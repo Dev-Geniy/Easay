@@ -2,8 +2,8 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {ALL_LESSONS} from '../public/courses.js';
 import {LESSON_SCRIPTS,teacherFor,timelineFor} from '../public/teacher.js';
-test('every one of the 264 lessons has five stage-specific offline messages',()=>{
- assert.equal(Object.keys(LESSON_SCRIPTS).length,264);
+test('every one of the 396 lessons has five stage-specific offline messages',()=>{
+ assert.equal(Object.keys(LESSON_SCRIPTS).length,396);
  for(const lesson of ALL_LESSONS){
   const item=LESSON_SCRIPTS[lesson.id];
   assert.equal(item.stages.length,5);

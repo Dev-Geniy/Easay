@@ -2,18 +2,20 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {COURSES,ALL_LESSONS,TOTAL_LESSONS,getLesson,getCourse} from '../public/courses.js';
 import {deckForLesson,deckForCourse} from '../public/flashcards.js';
-test('11 tracks contain 24 complete authored lessons with stable legacy IDs',()=>{
+test('11 tracks contain 36 complete authored lessons with stable legacy IDs',()=>{
  assert.equal(COURSES.length,11);
- assert.equal(TOTAL_LESSONS,264);
+ assert.equal(TOTAL_LESSONS,396);
  assert.equal(new Set(ALL_LESSONS.map(l=>l.id)).size,TOTAL_LESSONS);
  for(const c of COURSES){
-  assert.equal(c.lessons.length,24,c.id);
+  assert.equal(c.lessons.length,36,c.id);
   assert.equal(getCourse(c.id).id,c.id);
   assert.equal(c.lessons[0].id,c.id+'-1');
   assert.equal(c.lessons[11].id,c.id+'-12');
   assert.equal(c.lessons[12].id,c.id+'-13');
   assert.equal(c.lessons[23].id,c.id+'-24');
-  assert.equal(deckForCourse(c).length,96);
+  assert.equal(c.lessons[24].id,c.id+'-25');
+  assert.equal(c.lessons[35].id,c.id+'-36');
+  assert.equal(deckForCourse(c).length,144);
   for(const l of c.lessons){
    assert.equal(l.words.length,4,l.id);
    assert.ok(l.title.length>3,l.id);

@@ -1,5 +1,6 @@
 import {EXTRA_LESSONS} from './course-extensions.js';
-// Easay curriculum: 24 authored lessons per course, bundled for offline learning.
+import {ADVANCED_EXTENSIONS} from './course-chapters.js';
+// Easay curriculum: 36 authored lessons per course, bundled for offline learning.
 // Lesson fields: title | 4 English=Russian phrase pairs | speaking model English=Russian | teaching tip.
 const rawCourses = [
 { id:'basics',icon:'🧩',title:'English Basics',ru:'Английский с нуля',level:'A1',group:'start',desc:'Первые слова, простые фразы и фундамент грамматики.',tone:'#D6EAFF',accent:'#3776F6',grammar:'Начинай с коротких предложений. В английском обычно нужен порядок: кто + действие + дополнение.',lessons:`
@@ -160,7 +161,7 @@ API и интеграции|API endpoint=Адрес API|Authentication token=Т�
 
 const clean = x=>x.trim();
 export const COURSES = rawCourses.map(course => {
- const extra = (EXTRA_LESSONS[course.id]||'').trim().split('\n').filter(Boolean).map(line=>{
+ const extra = [(EXTRA_LESSONS[course.id]||''),(ADVANCED_EXTENSIONS[course.id]||'')].flatMap(text=>text.trim().split('\n').filter(Boolean)).map(line=>{
   const chunks=line.split('|').map(clean);
   if(chunks.length!==6)throw new Error('Invalid extended lesson in '+course.id+': '+line);
   return [chunks[0],...chunks.slice(1,5),chunks[1],chunks[5]].join('|');

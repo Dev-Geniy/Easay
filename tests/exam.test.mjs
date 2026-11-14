@@ -6,7 +6,7 @@ test('40-question, 100-point exam covers every lesson in every course',()=>{
  for(const course of COURSES){
   const exam=buildExam(course.id,13);
   assert.equal(exam.questions.length,40);
-  assert.equal(new Set(exam.questions.map(q=>q.lessonId)).size,24);
+  assert.equal(new Set(exam.questions.map(q=>q.lessonId)).size,36);
   for(const q of exam.questions){assert.equal(q.options.length,4);assert.ok(q.options.includes(q.correct))}
  }
  assert.equal(EXAM_QUESTIONS,40);
@@ -22,7 +22,7 @@ test('passing needs 36 correct answers (90 of 100)',()=>{
  answers[questions[4].id]=questions[4].options.find(x=>x!==questions[4].correct);
  assert.equal(gradeExam(questions,answers).passed,false);
 });
-test('four achievements remain and full course requires all 24 lessons',()=>{
+test('four achievements remain and full course requires all 36 lessons',()=>{
  const b=achievements();assert.equal(b.length,4);assert.ok(b.every(x=>!x.earned));
  const complete=Object.fromEntries(COURSES[0].lessons.map(l=>[l.id,{score:3}]));
  assert.equal(achievements(complete).filter(x=>x.earned).length,3);

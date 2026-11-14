@@ -115,3 +115,12 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - A full-course 96-card optional revision deck appears before the final 40-question exam, which is drawn from all 24 lessons (2.5 points per question; 90+/100 required for the internal Easay certificate).
 - A returning learner who completed any lessons receives a two-choice welcome popup once per browser session: Skip or Go to Review.
 - The existing storage key is preserved to retain earlier progress. The certificate is based on a server-graded Easay assessment, not an accredited academic qualification.
+
+## Easay 5.9 — third learning chapter
+
+- Expanded all 11 courses to **36 real authored lessons each**, reaching **396 lessons** and **1,584 expression flashcards**.
+- Original lessons 1–24 and their IDs remain unchanged, so saved learner progress continues to work.
+- The new lessons 25–36 add subject-specific grammar, dialogues, realistic scenarios and teacher notes rather than placeholder content.
+- The 40-question final exam still scores out of 100, with at least one question from **each of the 36 lessons**, and certificate threshold of 90/100.
+- Optional exam preparation offers all **144 flashcards per course**. The flashcard stage in each individual lesson remains four cards.
+- Refreshed PWA precache version and included `public/course-chapters.js` for offline study.
