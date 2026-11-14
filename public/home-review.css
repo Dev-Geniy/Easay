@@ -1,0 +1,63 @@
+/* Easay 6.3 — a calm learner homepage and three-grade spaced repetition. */
+.home-v2{max-width:980px}
+.home-v2>.page-title{font-size:clamp(29px,4vw,41px);letter-spacing:-1.35px;margin:11px 0 7px}
+.home-v2>.page-sub{margin:0 0 25px;max-width:580px;line-height:1.6;color:var(--muted2)}
+.home-v2 .home-primary{min-height:0;display:block;padding:clamp(23px,4vw,34px);border-radius:23px}
+.home-v2 .home-primary:after{display:none}
+.home-v2 .home-primary-content{max-width:unset}
+.home-v2 .home-primary h2{font-size:clamp(23px,3.1vw,32px);letter-spacing:-.8px;margin:9px 0}
+.home-v2 .home-primary p{font-size:13px;margin:0 0 17px;line-height:1.6}
+.home-lesson-progress{height:8px;max-width:650px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden}
+.home-lesson-progress span{display:block;height:100%;background:#fff;border-radius:999px;transition:width .25s ease}
+.home-lesson-caption{display:block;font-size:11px;color:#e0e9ff;line-height:1.5;margin-top:9px;font-weight:700}
+.home-v2 .home-main-button{margin-top:23px;min-height:49px!important;padding:13px 19px!important;font-size:13px!important;border-radius:12px!important}
+.home-quick-actions{margin-top:15px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.home-quick-card{display:flex;align-items:center;text-align:left;gap:13px;background:#fff;border:1px solid #e6ecf6;border-radius:17px;padding:19px;min-width:0;min-height:105px;color:#263653;cursor:pointer;transition:border-color .16s,background .16s,box-shadow .16s}
+.home-quick-card:hover{border-color:#c5d4f6;background:#f9fbff;box-shadow:0 8px 20px #243f7910}
+.home-quick-card:focus-visible,.review-grade:focus-visible{outline:3px solid #8ea9f9;outline-offset:3px}
+.home-quick-icon{flex:0 0 auto;width:43px;height:43px;border-radius:13px;background:#edf3ff;color:#315cf5;display:grid;place-items:center}
+.home-quick-icon svg{width:21px;height:21px}
+.home-quick-body{min-width:0;flex:1;display:grid;gap:5px}
+.home-quick-body strong{font-size:15px;font-weight:830}
+.home-quick-body small{font-size:11px;color:#78869d;line-height:1.5}
+.home-quick-arrow{color:#7588ab;font-size:20px;flex:0 0 auto}
+.home-v2 .home-expanded{margin-top:21px;border:1px solid #e9eef6;padding:20px;border-radius:18px;background:#fbfcff}
+.home-v2 .home-progress-panel{margin:0 0 17px;padding:14px 17px;box-shadow:none;background:#fff}
+.home-v2 .home-progress-panel strong{font-size:17px}
+.home-v2 .home-ring{height:70px;width:70px}
+.home-v2 .home-ring:before{height:56px;width:56px}
+.home-v2 .home-ring span{font-size:15px}
+.home-v2 .home-expanded .badge-strip{margin:17px 0}
+.home-progress-note{margin:15px 0 0;font-size:11px;color:#7e8ba0;line-height:1.6}
+.home-secondary-nav{display:flex;align-items:center;flex-wrap:wrap;gap:20px;margin:24px 3px 6px}
+.home-secondary-nav .text-link{font-size:12px;color:#617699;font-weight:750}
+.review-grade-prompt{text-align:center;color:#64758f;font-size:12px;margin:15px 0 12px;line-height:1.5}
+.review-ratings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.review-grade{display:grid;justify-items:center;align-content:center;gap:5px;text-align:center;min-width:0;min-height:67px;padding:11px 7px;border-radius:13px;border:1px solid #dce5f1;background:#f8faff;color:#334968;cursor:pointer;transition:background .14s,border-color .14s}
+.review-grade strong{font-size:12px;line-height:1.3}
+.review-grade small{font-size:10px;color:#7888a2;line-height:1.35}
+.review-grade.rating-again:hover{background:#f0f3f8;border-color:#c8d1df}
+.review-grade.rating-hard{background:#fffaf2;border-color:#f0dfbe;color:#885a22}
+.review-grade.rating-hard:hover{background:#fff2de}
+.review-grade.rating-easy{background:#edf9f3;border-color:#c5e7d5;color:#176647}
+.review-grade.rating-easy:hover{background:#dbf3e8}
+.review-practice-controls{display:flex;justify-content:center;margin-top:13px}
+.review-practice-controls .btn{min-width:210px}
+@media(max-width:620px){
+ .home-v2 .home-topline{align-items:flex-start}
+ .home-quick-actions{grid-template-columns:1fr;gap:10px}
+ .home-quick-card{min-height:81px;padding:14px 16px}
+ .home-v2 .home-primary{padding:23px 20px}
+ .home-v2 .home-primary p{font-size:12px}
+ .home-v2 .home-expanded{padding:12px}
+ .home-v2 .home-progress-panel{padding:14px}
+}
+@media(max-width:380px){
+ .review-ratings{gap:6px}
+ .review-grade{padding:10px 4px}
+ .review-grade strong{font-size:11px}
+ .review-grade small{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .home-lesson-progress span,.home-quick-card,.review-grade{transition:none!important}
+}

@@ -27,7 +27,7 @@ export function nextReviewDelay(previous,rating){
  const level=clampLevel(previous);
  if(rating==='again')return 10*MINUTE;
  if(rating==='hard')return HARD_DAYS[level]*DAY;
- if(rating==='easy')return EASY_DAYS[Math.min(5,level+1)]*DAY;
+ if(rating==='easy')return EASY_DAYS[level]*DAY;
  throw new RangeError('Unknown review rating');
 }
 export function reviewDelayLabel(milliseconds){

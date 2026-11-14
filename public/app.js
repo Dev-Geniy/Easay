@@ -7,6 +7,7 @@ import {glyph} from './icons.js';
 import {createTour} from './tour.js';
 import {createQuizFeedback} from './quiz-feedback.js';
 import {deckForLesson} from './flashcards.js';
+import {REVIEW_RATINGS,isReviewDue,nextReviewDelay,reviewDelayLabel,scheduleReview} from './review-scheduler.js';
 
 const KEY='easay:v3:learner';
 const $=(selector,root=document)=>root.querySelector(selector);
@@ -18,6 +19,8 @@ const initial={version:3,onboarded:false,firstName:'',level:'A1',primary:'everyd
 function readState(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'null');if(!raw||raw.version!==3)return structuredClone(initial);return {...structuredClone(initial),...raw,theme:'light',completed:raw.completed||{},reviews:raw.reviews||{},savedWords:raw.savedWords||{},mentorHistory:raw.mentorHistory||[]};}catch{return structuredClone(initial)}}
 let state=readState();
 let reviewInitialized=false;
+let reviewPractice=false;
+let homeStatsOpen=false;
 let showStudyPlan=false;
 let activeTeacherKey='',teacherTypingTimer=null;
 let pairLessonId=null;
@@ -30,7 +33,7 @@ const filteredCourses=()=>COURSES.filter(c=>(filter==='all'||c.group===filter)&&
 const doneCount=(course)=>course.lessons.filter(l=>state.completed[l.id]).length;
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 const dailyDone=()=>Object.values(state.completed).filter(x=>x.date===localDay()).length;
-const dueReviewItems=()=>Object.entries(state.savedWords).filter(([key])=>!state.reviews[key]||state.reviews[key].due<=localDay()).map(([key,value])=>({key,...value}));
+const dueReviewItems=()=>Object.entries(state.savedWords).filter(([key])=>isReviewDue(state.reviews[key])).map(([key,value])=>({key,...value}));
 const totalReviewItems=()=>Object.keys(state.savedWords).length;
 const createWordKey=(lesson,i)=>`${lesson.id}:${i}`;
 const dateLabel=()=>new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long'}).format(new Date());
@@ -63,20 +66,48 @@ function finalExamCTA(course,completed){
  const available=completed===course.lessons.length;
  return '<section class="course-final"><div><span class="overline">ФИНАЛЬНАЯ ПРОВЕРКА</span><h3>Итоговый экзамен · 100 баллов</h3><p>40 вопросов по всему курсу. Перед экзаменом ты повторишь все фразы. Для сертификата Easay нужно набрать 90 из 100. Серверная проверка сертификата доступна после подключения Cloudflare D1.</p></div>'+(available?'<a class="btn" href="/exam.html?course='+encodeURIComponent(course.id)+'">Пройти экзамен →</a>':'<span class="pill">'+completed+' / '+course.lessons.length+' уроков до экзамена</span>')+'</section>';
 }
+
 function home(){
  const primary=getCourse(state.primary)||COURSES[0];
  const next=nextUnfinished(primary.id);
  const completed=doneCount(primary);
  const progress=pct(completed,primary.lessons.length);
- const lastMistake=state.mistakes[state.mistakes.length-1];
+ const due=dueReviewItems().length;
+ const finished=completed===primary.lessons.length;
  const rhythm=({gentle:'В своём темпе',regular:'Несколько раз в неделю',daily:'Каждый день'})[state.pace]||'В своём темпе';
- const guidance=lastMistake&&getLesson(lastMistake.id)?'Вернись к сложной теме «'+lastMistake.title+'» и повтори её.':next.tip;
- return `<div class="home-quiet"><div class="home-topline"><span class="overline">ТВОЙ АНГЛИЙСКИЙ</span><span class="pill">${escapeHTML(state.level)} · ${escapeHTML(rhythm)}</span></div><h1 class="page-title">${state.firstName?'Привет, '+escapeHTML(state.firstName)+'.':'Привет!'}</h1><p class="page-sub">Продолжим с того места, где ты остановился.</p>
- <section class="home-primary"><div class="home-primary-content"><span class="home-label">СЛЕДУЮЩИЙ УРОК</span><h2>${escapeHTML(next.title)}</h2><p>${escapeHTML(primary.ru)} · Урок ${next.number} из ${primary.lessons.length}</p><button class="btn white home-main-button" data-action="lesson" data-id="${escapeHTML(next.id)}">Продолжить обучение →</button></div><div class="home-learning-figure" aria-hidden="true"><div>EN</div><span>10 минут</span></div></section>
- <div class="home-progress-panel"><div><span class="overline">МОЙ МАРШРУТ</span><strong>${escapeHTML(primary.title)}</strong><small>${completed} из ${primary.lessons.length} уроков пройдено</small></div><div class="home-ring" style="--percent:${progress}%"><span>${progress}%</span></div></div>
- <div class="home-guidance"><span class="guide-icon">${glyph('mentor')}</span><div><strong>Совет преподавателя</strong><p>${escapeHTML(guidance)}</p></div><button class="btn tiny ghost" data-action="open-plan">Мой план →</button></div>
- <div class="home-links"><button class="btn outline" data-action="catalog">Выбрать направление →</button><button class="btn ghost" data-action="review">Повторить фразы</button></div>
- <details class="home-expanded"><summary>Достижения и подробная статистика</summary>${badgeStrip()}${progressStats()}</details></div>`;
+ return `<div class="home-quiet home-v2">
+  <div class="home-topline"><span class="overline">МОЙ АНГЛИЙСКИЙ</span><span class="pill">${escapeHTML(state.level)} · ${escapeHTML(rhythm)}</span></div>
+  <h1 class="page-title">Продолжим обучение?</h1>
+  <p class="page-sub">${state.firstName?escapeHTML(state.firstName)+', ':''}начни с урока или повтори знакомые фразы. Всё в твоём темпе.</p>
+  <section class="home-primary home-lesson-focus" aria-label="Следующий урок">
+   <div class="home-primary-content">
+    <span class="home-label">${finished?'КУРС ПРОЙДЕН':'СЛЕДУЮЩИЙ УРОК'}</span>
+    <h2>${escapeHTML(next.title)}</h2>
+    <p>${escapeHTML(primary.ru)} · Урок ${next.number} из ${primary.lessons.length} · около 10 минут</p>
+    <div class="home-lesson-progress" role="progressbar" aria-label="Пройдено уроков" aria-valuemin="0" aria-valuemax="${primary.lessons.length}" aria-valuenow="${completed}"><span style="width:${progress}%"></span></div>
+    <span class="home-lesson-caption">${completed} из ${primary.lessons.length} уроков · ${progress}%</span>
+    <button class="btn white home-main-button" data-action="lesson" data-id="${escapeHTML(next.id)}">${finished?'Повторить последний урок':'Продолжить урок'} →</button>
+   </div>
+  </section>
+  <div class="home-quick-actions" aria-label="Повторение и прогресс">
+   <button type="button" class="home-quick-card" data-action="review">
+    <span class="home-quick-icon" aria-hidden="true">${glyph('stack')}</span>
+    <span class="home-quick-body"><strong>Повторение</strong><small>${due?due+' фраз к повторению':'Сегодня всё повторено'}</small></span>
+    <span class="home-quick-arrow" aria-hidden="true">→</span>
+   </button>
+   <button type="button" class="home-quick-card" data-action="home-stats" aria-expanded="${homeStatsOpen}" aria-controls="homeProgressDetails">
+    <span class="home-quick-icon" aria-hidden="true">${glyph('award')}</span>
+    <span class="home-quick-body"><strong>Мой прогресс</strong><small>${completed} из ${primary.lessons.length} уроков · достижения</small></span>
+    <span class="home-quick-arrow" aria-hidden="true">${homeStatsOpen?'↑':'→'}</span>
+   </button>
+  </div>
+  <section class="home-expanded home-progress-details" id="homeProgressDetails" aria-label="Статистика и достижения" ${homeStatsOpen?'':'hidden'}>
+   <div class="home-progress-panel"><div><span class="overline">МОЙ МАРШРУТ</span><strong>${escapeHTML(primary.title)}</strong><small>${completed} из ${primary.lessons.length} уроков пройдено</small></div><div class="home-ring" style="--percent:${progress}%"><span>${progress}%</span></div></div>
+   ${badgeStrip()}${progressStats()}
+   <p class="home-progress-note">Показатели отражают завершённые уроки и сохранённые выражения, а не отдельную оценку разговорных навыков.</p>
+  </section>
+  <div class="home-secondary-nav"><button class="text-link" data-action="catalog">Все курсы →</button><button class="text-link" data-action="open-plan">Мой учебный план →</button></div>
+ </div>`;
 }
 function catalog(){return `${pageHeading('Выбери свой английский','Не один универсальный курс, а направления под реальные цели. Уроки доступны в любом порядке.',`11 НАПРАВЛЕНИЙ · ${TOTAL_LESSONS} УРОКОВ`)}<div class="row" style="flex-wrap:wrap;margin-bottom:18px"><div class="level-grid"><button class="filter-pill ${filter==='all'?'active':''}" data-action="filter" data-value="all">Все</button><button class="filter-pill ${filter==='start'?'active':''}" data-action="filter" data-value="start">С нуля</button><button class="filter-pill ${filter==='life'?'active':''}" data-action="filter" data-value="life">Для жизни</button><button class="filter-pill ${filter==='career'?'active':''}" data-action="filter" data-value="career">Для карьеры</button><button class="filter-pill ${filter==='study'?'active':''}" data-action="filter" data-value="study">Учёба и B2</button></div><label class="search-field"><span aria-hidden="true">⌕</span><input id="courseSearch" type="search" placeholder="Найти курс..." value="${escapeHTML(query)}" aria-label="Поиск курса"></label></div><div id="courseGrid" class="course-grid">${filteredCourses().map(courseCard).join('')||'<div class="empty"><p>По запросу ничего не нашлось.</p></div>'}</div>`}
 function courseView(){const c=getCourse(courseId)||COURSES[0];const next=nextUnfinished(c.id);const n=doneCount(c);const options=c.lessons.map(l=>`<button class="lesson-item" data-action="lesson" data-id="${l.id}"><span class="lesson-index ${state.completed[l.id]?'done':''}">${state.completed[l.id]?'✓':String(l.number).padStart(2,'0')}</span><span class="grow"><b>${escapeHTML(l.title)}</b><small>${escapeHTML(l.words[0][0])} · ~10 минут</small></span><span class="lesson-arrow">→</span></button>`).join('');return `<div class="lesson-shell" style="max-width:1050px"><button class="text-link" data-action="catalog" style="margin-bottom:18px">← Все курсы</button><section class="course-cover" style="--cover:${c.tone};--cover2:#f8f9ff"><div class="cover-emoji">${glyph(c.id)}</div><div><div class="overline">${c.level} · ${c.lessons.length} УРОКОВ</div><h2>${escapeHTML(c.title)}</h2><p>${escapeHTML(c.desc)} ${escapeHTML(c.grammar)}</p><button class="btn" data-action="lesson" data-id="${next.id}">${n===c.lessons.length?'Повторить последний урок':'Продолжить курс'} →</button></div></section><div class="section-heading"><h2 class="h2">Программа курса</h2><span class="pill">${n}/${c.lessons.length} готово · ${pct(n,c.lessons.length)}%</span></div><div class="mini-progress" style="margin:-2px 0 19px;height:8px"><span style="width:${pct(n,c.lessons.length)}%;background:${c.accent}"></span></div><div class="lesson-list">${options}</div>${finalExamCTA(c,n)}</div>`}
@@ -131,32 +162,37 @@ function lessonView(){
  <div class="lesson-controls"><button class="btn outline" data-action="step-prev" ${step===0?'disabled':''}>← Назад</button><span class="small-text subtle">${lessonStepNames[step]}</span>${right}</div>
  <p class="note" style="margin-top:18px">Прогресс сохраняется в браузере. Точность произношения автоматически не оценивается.</p></div>`;
 }
+
 function reviewView(){
  const due=dueReviewItems(),count=totalReviewItems();
  if(!reviewInitialized){reviewList=due;reviewInitialized=true;}
  flashIndex=Math.min(flashIndex,Math.max(reviewList.length-1,0));
  const current=reviewList[flashIndex];
+ const ratings=current?REVIEW_RATINGS.map(r=>`<button type="button" class="review-grade ${r.className}" data-action="remember" data-value="${r.id}" aria-label="${r.label}, ${reviewDelayLabel(nextReviewDelay(state.reviews[current.key],r.id))}"><strong>${r.label}</strong><small>${reviewDelayLabel(nextReviewDelay(state.reviews[current.key],r.id))}</small></button>`).join(''):'';
+ const controls=reviewPractice?
+  '<div class="review-practice-controls"><button type="button" class="btn" data-action="review-next">Следующая фраза →</button></div>':
+  `<div class="review-ratings" role="group" aria-label="Насколько хорошо запомнилась фраза?">${ratings}</div>`;
  const flash=current?`<div class="review-activity">
-   <button type="button" class="flash-card review-card" data-action="flip" aria-label="Перевернуть карточку">
+   <button type="button" class="flash-card review-card" data-action="flip" aria-label="${flashRevealed?'Показать английскую фразу':'Показать перевод'}">
     <span class="flash-counter">${flashIndex+1} / ${reviewList.length}</span>
     <span class="big-word">${escapeHTML(flashRevealed?current.ru:current.en)}</span>
-    <span class="flash-hint">${flashRevealed?'Удалось вспомнить?':'Нажми, чтобы увидеть перевод'}</span>
+    <span class="flash-hint">${flashRevealed?'Вспомни, насколько легко получилось.':'Попробуй вспомнить перевод, затем переверни карточку.'}</span>
    </button>
-   <div class="flash-controls">${flashRevealed?`<button class="btn outline" data-action="remember" data-value="again">Повторить позже</button><button class="btn" data-action="remember" data-value="good">Помню ✓</button>`:`<button class="btn" data-action="flip">Показать перевод →</button>`}</div>
- </div>`:
- `<div class="review-empty"><span class="review-empty-mark" aria-hidden="true">${glyph(count?'award':'book')}</span><h2>${count?'На сегодня всё!':'Здесь появятся твои фразы'}</h2>
- <p>${count?'Сегодня нет фраз по расписанию. Дополнительная практика доступна по желанию.':'Добавляй фразы во время уроков, чтобы закреплять их здесь.'}</p>
- <button class="btn" data-action="${count?'review-refresh':'catalog'}">${count?'Тренироваться дополнительно →':'Выбрать урок →'}</button></div>`;
+   ${flashRevealed?`<p class="review-grade-prompt">${reviewPractice?'Свободная тренировка не меняет даты повторения.':'Оцени, как легко удалось вспомнить фразу:'}</p>${controls}`:'<div class="flash-controls"><button class="btn" data-action="flip">Показать перевод →</button></div>'}
+  </div>`:
+  `<div class="review-empty"><span class="review-empty-mark" aria-hidden="true">${glyph(count?'award':'book')}</span><h2>${reviewPractice?'Тренировка завершена':count?'На сегодня всё!':'Здесь появятся твои фразы'}</h2>
+   <p>${reviewPractice?'Все выбранные фразы просмотрены. Расписание повторения не изменилось.':count?'Сегодня нет фраз по расписанию. Дополнительная практика доступна по желанию.':'Добавляй фразы во время уроков, чтобы закреплять их здесь.'}</p>
+   <button class="btn" data-action="${reviewPractice?'review-scheduled':count?'review-refresh':'catalog'}">${reviewPractice?'Вернуться к повторению →':count?'Тренироваться дополнительно →':'Выбрать урок →'}</button></div>`;
  return `<div class="quiet-page review-page">
-   <header class="quiet-page-head"><h1>Повторение</h1><p>Немного практики — и фразы остаются с тобой.</p></header>
-   <section class="review-surface" aria-label="Карточки для повторения">
-    <div class="review-surface-top"><strong>Карточки</strong><span>${due.length} к повторению</span></div>${flash}
-   </section>
-   <div class="review-secondary"><span>В словаре: ${count}</span>
-    <button class="text-link" data-action="catalog">Добавить фразы</button>
-    ${count&&reviewList.length?`<button class="text-link" data-action="review-refresh">Тренироваться дополнительно</button>`:''}
-    <details class="review-help"><summary>Как работает повторение?</summary><p>Когда отмечаешь «Помню», интервал до следующей проверки увеличивается. Всё работает без ИИ.</p></details>
-   </div>
+  <header class="quiet-page-head"><h1>${reviewPractice?'Дополнительная практика':'Повторение'}</h1><p>${reviewPractice?'Повторяй любые сохранённые фразы без изменения расписания.':'Вспоминай фразы с интервалами, которые зависят от твоих ответов.'}</p></header>
+  <section class="review-surface" aria-label="Карточки для повторения">
+   <div class="review-surface-top"><strong>${reviewPractice?'Свободная тренировка':'Карточки по расписанию'}</strong><span>${due.length} к повторению</span></div>${flash}
+  </section>
+  <div class="review-secondary"><span>В словаре: ${count}</span>
+   <button class="text-link" data-action="catalog">Добавить фразы</button>
+   ${count&&reviewPractice?'<button class="text-link" data-action="review-scheduled">По расписанию</button>':count&&reviewList.length?'<button class="text-link" data-action="review-refresh">Тренироваться дополнительно</button>':''}
+   <details class="review-help"><summary>Как работает повторение?</summary><p>«Не помню» — повторение через 10 минут. «С трудом» — короткий интервал. «Легко» — более длинный. Easay сохраняет расписание отдельно для каждой фразы. Дополнительная тренировка на него не влияет.</p></details>
+  </div>
  </div>`;
 }
 function conversationCard(){return `<div class="chat-box" id="practiceChat">${practiceMessages.map(m=>`<div class="chat-bubble ${m.role==='user'?'mine':'ai-rich'}">${m.role==='user'?escapeHTML(m.text):renderAssistantText(m.text)}</div>`).join('')}</div>`}
@@ -224,7 +260,7 @@ function mentorView(){
 }
 function profileView(){const goal=getCourse(state.primary);return `${pageHeading('Мой профиль','Настрой свой учебный маршрут и приложение под себя.','НАСТРОЙКИ')}<div class="profile-help"><span>Впервые здесь или хочешь освежить навигацию?</span><button class="guide-launch" data-action="tour-start">Показать, как всё работает →</button></div><div class="profile-grid"><div class="card"><h2 class="h2">Обучение</h2><div class="field"><label for="profileName">Как тебя называть (необязательно)</label><input id="profileName" maxlength="32" value="${escapeHTML(state.firstName)}" placeholder="Например, Саша"></div><div class="field"><label for="profileLevel">Твой уровень</label><select id="profileLevel">${['A1','A2','B1','B2'].map(level=>`<option ${state.level===level?'selected':''}>${level}</option>`).join('')}</select></div><div class="field"><label for="profileGoal">Главный курс</label><select id="profileGoal">${COURSES.map(c=>`<option value="${c.id}" ${state.primary===c.id?'selected':''}>${escapeHTML(c.ru)} (${c.level})</option>`).join('')}</select></div><div class="toggle-row"><div><strong>Автоматический разбор теста с ИИ</strong><p class="note" style="margin:5px 0 0">Если выключено, правильные ответы остаются доступными без ИИ. В чате можно спросить наставника вручную.</p></div><input type="checkbox" id="profileAuto" ${state.autoCoach?'checked':''}></div><div class="field"><label for="profilePace">Удобный ритм</label><select id="profilePace"><option value="gentle" ${state.pace==='gentle'?'selected':''}>В своём темпе</option><option value="regular" ${state.pace==='regular'?'selected':''}>Несколько раз в неделю</option><option value="daily" ${state.pace==='daily'?'selected':''}>Каждый день</option></select></div><button class="btn" data-action="save-profile" style="margin-top:24px">Сохранить изменения</button><div style="margin-top:25px" class="row" ><button class="text-link" data-action="export">⇩ Экспорт прогресса</button><button class="text-link" data-action="import">⇧ Импорт JSON</button><input id="importFile" type="file" accept="application/json,.json" style="display:none"></div><button class="text-link" data-action="reset" style="color:#c54f58;margin-top:18px">Очистить локальный прогресс</button></div><aside class="card"><h2 class="h2">Текущий маршрут</h2><span class="profile-glyph">${glyph(goal?.id||"everyday")}</span><h3 class="h3">${escapeHTML(goal?.title||'Everyday English')}</h3><p class="note">${escapeHTML(goal?.desc||'')}</p><div class="free-profile-note" style="margin-top:25px"><strong>Все курсы бесплатны.</strong><p>Поддержка Easay полностью добровольная. 50% донатов мы направляем на питание и развитие детей SkyKids.</p><a href="https://send.monobank.ua/jar/9ECZLkLXkq" target="_blank" rel="noopener noreferrer">Поддержать проект ↗</a></div></aside></div>`}
 function render(restoreSearch=false){navRender();$('#breadcrumb').textContent=({home:'Моё обучение',catalog:'Каталог курсов',course:'Программа курса',lesson:'Урок',review:'Повторение',practice:'Разговорная практика',mentor:'ИИ-наставник',profile:'Мой профиль'})[page]||'Easay';let body=page==='home'?home():page==='catalog'?catalog():page==='course'?courseView():page==='lesson'?lessonView():page==='review'?reviewView():page==='practice'?practiceView():page==='mentor'?mentorView():profileView();const active=document.activeElement?.id;const selection=(active==='courseSearch'&&restoreSearch)?$('#courseSearch')?.selectionStart:null;$('#content').innerHTML=body;if(restoreSearch&&active==='courseSearch'){const el=$('#courseSearch');el?.focus();el?.setSelectionRange(selection||0,selection||0)}if(page==='mentor')scrollChat('#mentorChat');if(page==='lesson')syncTeacher();if(page==='practice')scrollChat('#practiceChat');tour?.refreshAfterRender();}
-function go(to,id){quizFeedback?.close();if(to==='course'){courseId=id||courseId;if(!getCourse(courseId))courseId=COURSES[0].id;}if(to==='lesson'){lessonId=id||lessonId;if(!getLesson(lessonId))lessonId=ALL_LESSONS[0].id;step=0;answers={};quizChecked=false;quizScore=0;lessonDeckIndex=0;lessonDeckRevealed=false;lessonCoach='';lessonCoachId=lessonId;}if(to!=='lesson'){activeTeacherKey='';stopTeacher();}page=to;render();window.scrollTo({top:0,behavior:'instant'});/* Offline teacher introduces the lesson. Remote Groq help remains optional. */}
+function go(to,id){quizFeedback?.close();if(to==='review'){reviewPractice=false;reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false;}if(to==='course'){courseId=id||courseId;if(!getCourse(courseId))courseId=COURSES[0].id;}if(to==='lesson'){lessonId=id||lessonId;if(!getLesson(lessonId))lessonId=ALL_LESSONS[0].id;step=0;answers={};quizChecked=false;quizScore=0;lessonDeckIndex=0;lessonDeckRevealed=false;lessonCoach='';lessonCoachId=lessonId;}if(to!=='lesson'){activeTeacherKey='';stopTeacher();}page=to;render();window.scrollTo({top:0,behavior:'instant'});/* Offline teacher introduces the lesson. Remote Groq help remains optional. */}
 function stopTeacher(){
  if(teacherTypingTimer){clearInterval(teacherTypingTimer);teacherTypingTimer=null;}
 }
@@ -263,7 +299,8 @@ function scrollChat(selector){const el=$(selector);if(el)el.scrollTop=el.scrollH
 async function practiceStart(){practiceMessages=[];chatBusy=true;render();try{const c=getCourse(chatContext)||getCourse(state.primary);const reply=await callAI('roleplay','Начни учебную ролевую беседу одной короткой фразой по-английски и задай вопрос. Ученик ответит. Не раскрывай все ответы сразу.',{course:c?.title,lesson:`Сценарий: ${c?.ru||'Обычный разговор'}`,history:[]});practiceMessages.push({role:'ai',text:reply});}catch(e){practiceMessages.push({role:'ai',text:`ИИ сейчас недоступен: ${e.message} Можно потренировать встроенные диалоги в уроках.`});}finally{chatBusy=false;if(page==='practice')render()}}
 async function practiceSend(){if(chatBusy)return;const input=$('#practiceInput');const value=input?.value.trim();if(!value)return;practiceMessages.push({role:'user',text:value});chatBusy=true;render();const c=getCourse(chatContext)||getCourse(state.primary);try{const reply=await callAI('roleplay',value,{course:c?.title,lesson:c?.ru,history:practiceMessages});practiceMessages.push({role:'ai',text:reply});}catch(e){practiceMessages.push({role:'ai',text:'ИИ временно недоступен: '+e.message});}finally{chatBusy=false;if(page==='practice')render()}}
 function speechInput(){const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Rec){toast('Этот браузер не поддерживает голосовой ввод. Можно писать текстом.');return;}const recognition=new Rec();recognition.lang='en-US';recognition.interimResults=false;recognition.maxAlternatives=1;recognition.onresult=e=>{const input=$('#practiceInput');if(input){input.value=e.results[0][0].transcript;input.focus()}};recognition.onerror=()=>toast('Не удалось распознать речь. Попробуй снова или используй текст.');recognition.onend=()=>{};recognition.start();toast('Слушаю английскую речь…')}
-function reviewAdvance(good){const item=reviewList[flashIndex];if(!item)return;const prev=state.reviews[item.key]||{level:0,due:localDay()};const newLevel=good?Math.min(5,prev.level+1):0;const schedule=[1,1,3,7,14,30];state.reviews[item.key]={level:newLevel,due:addDays(localDay(),schedule[newLevel])};save();reviewList.splice(flashIndex,1);if(flashIndex>=reviewList.length)flashIndex=0;flashRevealed=false;render();}
+function advanceReviewCard(){reviewList.splice(flashIndex,1);if(flashIndex>=reviewList.length)flashIndex=0;flashRevealed=false;render()}
+function reviewAdvance(rating){const item=reviewList[flashIndex];if(!item||reviewPractice||!REVIEW_RATINGS.some(x=>x.id===rating))return;state.reviews[item.key]=scheduleReview(state.reviews[item.key],rating);save();advanceReviewCard()}
 function loadOnboarding(){
  let known=state.firstName||'';
  if(!known)try{known=localStorage.getItem('easay:intro-name:v1')||''}catch{}
@@ -308,9 +345,10 @@ async function importJSON(file){if(!file)return;if(file.size>1000000)return toas
 document.addEventListener('click',async event=>{
 const el=event.target.closest('[data-action]');if(!el)return;const action=el.dataset.action;
 if(action==='tour-start'){tour?.start();return;}
+if(action==='home-stats'){homeStatsOpen=!homeStatsOpen;render();$('[data-action="home-stats"]')?.focus({preventScroll:true});if(homeStatsOpen)$('#homeProgressDetails')?.scrollIntoView({block:'nearest',behavior:'instant'});return;}
 if(action==='return-skip'){$('#modalRoot').innerHTML='';return;}
-if(action==='return-review'){$('#modalRoot').innerHTML='';reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false;go('review');return;}
-if(['home','catalog','review','practice','mentor','profile'].includes(action)){if(action==='review'){reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false}go(action);return;}
+if(action==='return-review'){$('#modalRoot').innerHTML='';reviewPractice=false;reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false;go('review');return;}
+if(['home','catalog','review','practice','mentor','profile'].includes(action)){if(action==='review'){reviewPractice=false;reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false}go(action);return;}
 if(action==='course'){go('course',el.dataset.id);return;}
 if(action==='lesson'){go('lesson',el.dataset.id);return;}
 if(action==='filter'){filter=el.dataset.value;render();return;}
@@ -341,8 +379,10 @@ if(action==='nextlesson'){pairLessonId=null;const l=getLesson(lessonId);const c=
 if(['coach-explain','coach-example','coach-challenge'].includes(action)){const l=getLesson(lessonId);if(!l)return;const mode=action==='coach-challenge'?'practice':'explain';const prefix=action==='coach-explain'?'Объясни другими простыми словами и приведи пример':action==='coach-example'?'Приведи два новых примера с переводом':'Дай один короткий вопрос для практики, ответ пока не показывай';autoExplain(mode,`${prefix}. Тема: ${l.title}. Пример: ${l.example}`);return;}
 if(action==='roleplay'){chatContext=getLesson(el.dataset.id)?.courseId||state.primary;practiceMessages=[];go('practice');await practiceStart();return;}
 if(action==='flip'){flashRevealed=!flashRevealed;render();return;}
-if(action==='remember'){reviewAdvance(el.dataset.value==='good');return;}
-if(action==='review-refresh'){reviewInitialized=true;reviewList=Object.entries(state.savedWords).map(([key,value])=>({key,...value}));flashIndex=0;flashRevealed=false;render();return;}
+if(action==='remember'){reviewAdvance(el.dataset.value);return;}
+if(action==='review-next'){if(reviewPractice&&reviewList[flashIndex])advanceReviewCard();return;}
+if(action==='review-scheduled'){reviewPractice=false;reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false;render();return;}
+if(action==='review-refresh'){reviewPractice=true;reviewInitialized=true;reviewList=Object.entries(state.savedWords).map(([key,value])=>({key,...value}));flashIndex=0;flashRevealed=false;render();return;}
 if(action==='scenario'){chatContext=el.dataset.id;practiceMessages=[];render();return;}
 if(action==='practice-start'){practiceStart();return;}
 if(action==='practice-send'){practiceSend();return;}

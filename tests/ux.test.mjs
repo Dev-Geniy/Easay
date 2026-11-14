@@ -30,8 +30,8 @@ test('learner progress and optional Groq continue to use the same storage key an
 });
 test('offline cache includes all new course, flashcard and tour assets',()=>{
  const worker=read('../public/sw.js');
- for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/minimal.css'","'/exam.html'","'/exam-ui.js'","'/exam-session.js'","'/exam.js'","'/certificate.html'","'/certificate.js'","'/course-extensions.js'","'/course-chapters.js'","'/learner-identity.js'","'/flashcards.js'","'/learning.css'"]){
+ for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/minimal.css'","'/exam.html'","'/exam-ui.js'","'/exam-session.js'","'/exam.js'","'/certificate.html'","'/certificate.js'","'/course-extensions.js'","'/course-chapters.js'","'/learner-identity.js'","'/flashcards.js'","'/learning.css'","'/review-scheduler.js'","'/home-review.css'"]){
   assert.ok(worker.includes(asset),'missing offline asset '+asset);
  }
- assert.match(worker,/easay-static-v6\.2/);
+ assert.match(worker,/easay-static-v6\.3/);
 });
