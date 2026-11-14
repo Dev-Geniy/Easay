@@ -93,13 +93,42 @@ function lessonIntro(l,c){
 }
 function lessonWords(l,c){return `<div class="overline">ШАГ 2 · НОВЫЕ ФРАЗЫ</div><h2 class="h2" style="margin-top:10px">Говори целыми фразами</h2><p>Нажимай «Слушать», повторяй вслух и сохраняй нужные выражения.</p>${wordCards(l)}<div class="tip-card">${escapeHTML(c.grammar)}</div>${lessonCoachBlock('Повтори четыре выражения вслух. Если какое-то непонятно — попроси объяснить.')}`}
 function lessonDialogue(l){const w=l.words;const lines=[['A',w[0][0],w[0][1]],['B',w[1][0],w[1][1]],['A',w[2][0],w[2][1]],['B',w[3][0],w[3][1]]];return `<div class="overline">ШАГ 3 · СИТУАЦИЯ</div><h2 class="h2" style="margin-top:10px">Диалог по теме</h2><p>Это учебная мини-сценка из фраз урока. Попробуй прочитать её за двух собеседников.</p>${pairLessonId===l.id?pairPractice(l):''}<div class="dialogue-chat">${lines.map(([person,en,ru],i)=>`<div class="dialogue-row ${i%2?'right':''}"><span class="dialogue-avatar">${person}</span><div class="dialogue-bubble"><strong>${escapeHTML(en)}</strong><p>${escapeHTML(ru)}</p><button class="text-link" data-action="speak" data-text="${escapeHTML(en)}" style="margin-top:10px;font-size:11px">${glyph("volume")} Слушать</button></div></div>`).join('')}</div><div class="example-box"><strong>${escapeHTML(l.example)}</strong><p>${escapeHTML(l.translation)}</p></div>${lessonCoachBlock('Готов потренировать этот диалог с ИИ? Наставник может сыграть роль собеседника.')}<div style="margin-top:12px"><button class="btn ghost" data-action="roleplay" data-id="${l.id}">◉ Потренировать диалог с ИИ →</button></div>`}
+function lessonFlashcards(l){
+ const cards=deckForLesson(l),item=cards[lessonDeckIndex]||cards[0];
+ return `<div class="lesson-deck"><div class="overline">ШАГ 4 · ЗАКРЕПЛЕНИЕ</div><h2 class="h2" style="margin-top:10px">Вспомни перевод</h2><p class="lesson-deck-intro">Сначала подумай, что означает английская фраза. Затем переверни карточку.</p>
+ <div class="lesson-deck-count">Карточка ${lessonDeckIndex+1} из ${cards.length}</div>
+ <button type="button" class="lesson-flashcard ${lessonDeckRevealed?'revealed':''}" data-action="lesson-card-flip" aria-label="${lessonDeckRevealed?'Показать английский':'Открыть перевод'}">
+  <span class="lesson-deck-language">${lessonDeckRevealed?'РУССКИЙ ПЕРЕВОД':'АНГЛИЙСКАЯ ФРАЗА'}</span>
+  <strong>${escapeHTML(lessonDeckRevealed?item.ru:item.en)}</strong>
+  <small>${lessonDeckRevealed?'Нажми для английского':'Нажми, чтобы узнать перевод'}</small>
+ </button>
+ <div class="lesson-deck-buttons">
+  <button class="btn outline" data-action="speak" data-text="${escapeHTML(item.en)}">${glyph('volume')} Слушать</button>
+  ${lessonDeckRevealed?`<button class="btn" data-action="lesson-card-next">${lessonDeckIndex===cards.length-1?'Перейти к тесту →':'Следующая карточка →'}</button>`:`<button class="btn" data-action="lesson-card-flip">Показать перевод →</button>`}
+ </div></div>`;
+}
 function quizQuestions(l){const c=getCourse(l.courseId);let others=c.lessons.flatMap(x=>x.words).filter(([a,b])=>!l.words.some(w=>w[0]===a||w[1]===b));const pick=(correct,arr,seed)=>{const unique=[...new Set([correct,...arr])].filter(Boolean);const wrong=unique.filter(x=>x!==correct).sort((a,b)=>a.localeCompare(b)).slice(seed,seed+7);const opts=[correct,...wrong.slice(0,3)];while(opts.length<4){const extra=arr.find(x=>!opts.includes(x));if(!extra)break;opts.push(extra)}const index=seed%opts.length;opts.splice(0,1);opts.splice(index,0,correct);return opts};let w=l.words;return [
 {q:`Как перевести «${w[0][0]}»?`,opts:pick(w[0][1],w.slice(1).map(x=>x[1]).concat(others.map(x=>x[1])),l.number%3),answer:w[0][1]},
 {q:`Выбери английскую фразу для «${w[1][1]}».`,opts:pick(w[1][0],[w[0][0],w[2][0],w[3][0],...others.map(x=>x[0])],(l.number+1)%4),answer:w[1][0]},
 {q:`Что означает «${w[2][0]}»?`,opts:pick(w[2][1],[w[0][1],w[1][1],w[3][1],...others.map(x=>x[1])],(l.number+2)%4),answer:w[2][1]}
 ]}
 function quizView(l){const tests=quizQuestions(l);const banner=quizChecked?`<div class="result-banner ${quizScore<2?'fail':''}"><strong>${quizScore>=2?'Отлично! Урок зачтён':'Нужно немного повторить'}</strong><span>Правильных ответов: ${quizScore} из 3. ${quizScore>=2?'Фразы добавлены в твой прогресс.':'Посмотри верные варианты и попробуй снова.'}</span></div>`:'';return `<div class="overline">ШАГ 5 · ПРОВЕРЬ СЕБЯ</div><h2 class="h2" style="margin-top:10px">Закрепим результат</h2><p>Ответь на 3 вопроса. Для зачёта нужно минимум 2 правильных ответа.</p><div class="quiz">${tests.map((q,i)=>`<div class="quiz-card"><div class="quiz-number">Вопрос ${i+1} / 3</div><div class="quiz-question">${escapeHTML(q.q)}</div><div class="quiz-options">${q.opts.map((opt,n)=>`<button class="quiz-option ${answers[i]===opt?'selected':''} ${quizChecked&&opt===q.answer?'correct':''} ${quizChecked&&answers[i]===opt&&opt!==q.answer?'wrong':''}" data-action="answer" data-q="${i}" data-value="${escapeHTML(opt)}" ${quizChecked?'disabled':''}>${String.fromCharCode(65+n)}. ${escapeHTML(opt)}</button>`).join('')}</div></div>`).join('')}</div>${banner}${inviteBox(l)}${lessonCoachBlock(quizChecked&&quizScore<2?'Посмотри верные варианты. Я помогу разобрать ошибки.':'Проверим, что ты запомнил. Можно попросить дополнительную подсказку.')}`}
-function lessonView(){const l=getLesson(lessonId)||ALL_LESSONS[0];const c=getCourse(l.courseId);const steps=()=>[lessonIntro(l,c),lessonWords(l,c),lessonDialogue(l),quizView(l)];const rendered=steps()[step].replace('</h2>','</h2><p class="inline-teacher" id="scriptedTeacherText" aria-label="Подсказка преподавателя"></p>');return `<div class="lesson-shell"><div class="lesson-header"><button class="back-btn" data-action="course" data-id="${c.id}" title="Вернуться к курсу">←</button><div class="stepper" aria-label="Этап ${step+1} из 4">${[0,1,2,3].map(i=>`<div class="step ${i<=step?'active':''}"></div>`).join('')}</div><span class="lesson-label">${step+1}/4</span></div><div class="lesson-viewport"><div class="card lesson-topcard">${rendered}</div></div><div class="lesson-controls"><button class="btn outline" data-action="step-prev" ${step===0?'disabled':''}>← Назад</button><span class="small-text subtle">${lessonStepNames[step]}</span>${step<3?`<button class="btn" data-action="step-next">Продолжить →</button>`:quizChecked&&quizScore>=2?`<button class="btn" data-action="nextlesson">Следующий урок →</button>`:quizChecked?`<button class="btn" data-action="retry">Повторить тест →</button>`:`<button class="btn" data-action="check" ${Object.keys(answers).length<3?'disabled':''}>Проверить ответы →</button>`}</div><p class="note" style="margin-top:18px">ИИ использует контекст текущего урока. Прогресс сохраняется в браузере. Точность произношения автоматически не оценивается.</p></div>`}
+function lessonView(){
+ const l=getLesson(lessonId)||ALL_LESSONS[0],c=getCourse(l.courseId);
+ const steps=()=>[lessonIntro(l,c),lessonWords(l,c),lessonDialogue(l),lessonFlashcards(l),quizView(l)];
+ const rendered=steps()[step].replace('</h2>','</h2><p class="inline-teacher" id="scriptedTeacherText" aria-label="Подсказка преподавателя"></p>');
+ let right='';
+ if(step<=2)right='<button class="btn" data-action="step-next">Продолжить →</button>';
+ else if(step===3)right='<span class="small-text subtle">Проверь все 4 карточки, затем переходи к тесту.</span>';
+ else if(quizChecked&&quizScore>=2)right='<button class="btn" data-action="nextlesson">Следующий шаг →</button>';
+ else if(quizChecked)right='<button class="btn" data-action="retry">Повторить тест →</button>';
+ else right='<button class="btn" data-action="check" '+(Object.keys(answers).length<3?'disabled':'')+'>Проверить ответы →</button>';
+ return `<div class="lesson-shell"><div class="lesson-header"><button class="back-btn" data-action="course" data-id="${c.id}" title="Вернуться к курсу">←</button>
+ <div class="stepper" aria-label="Этап ${step+1} из 5">${[0,1,2,3,4].map(i=>`<div class="step ${i<=step?'active':''}"></div>`).join('')}</div><span class="lesson-label">${step+1}/5</span></div>
+ <div class="lesson-viewport"><div class="card lesson-topcard">${rendered}</div></div>
+ <div class="lesson-controls"><button class="btn outline" data-action="step-prev" ${step===0?'disabled':''}>← Назад</button><span class="small-text subtle">${lessonStepNames[step]}</span>${right}</div>
+ <p class="note" style="margin-top:18px">Прогресс сохраняется в браузере. Точность произношения автоматически не оценивается.</p></div>`;
+}
 function reviewView(){
  const due=dueReviewItems(),count=totalReviewItems();
  if(!reviewInitialized){reviewList=due.length?due:Object.entries(state.savedWords).map(([key,value])=>({key,...value}));reviewInitialized=true;}
