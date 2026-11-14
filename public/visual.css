@@ -2,13 +2,9 @@
    including narrow iOS screens. No hard rectangular image boundaries. */
 .hero{
  position:relative;isolation:isolate;overflow:hidden;
- background:linear-gradient(180deg,#fff 0%,#fcfdff 45%,#fff 100%);
+ background:#fff;
 }
-.hero:before{
- content:"";position:absolute;z-index:-1;pointer-events:none;
- width:min(65vw,900px);height:min(65vw,900px);right:-18%;top:-47%;
- border-radius:50%;background:radial-gradient(circle,#e8efff 0%,#f4f7ff82 42%,transparent 73%);
-}
+.hero::before{content:none;display:none}
 .hero-layout{
  position:relative;max-width:1184px;margin:auto;z-index:1;
  display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
@@ -28,6 +24,7 @@
  min-width:0;width:100%;height:480px;
  position:relative;isolation:isolate;display:grid;place-items:center;
  pointer-events:none;overflow:visible;
+ background:transparent;box-shadow:none;
 }
 .hero-art>img{
  position:absolute;display:block;z-index:0;top:50%;left:50%;
@@ -140,7 +137,7 @@
 .hero-art,.speaking-media,.certificate-media{background:transparent}
 .hero-art>img,.speaking-media img,.certificate-media img{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 
-/* Hero refresh: original artwork fades into white; on phones it lives
+/* Hero refresh: the art itself has no background or decorative spotlight; on phones it lives
    in the free space to the right of the heading, not below the CTA. */
 .hero-art>img{
   top:50%;left:55%;width:154%;height:auto;max-width:none;

@@ -6,6 +6,9 @@ test('hero and marketing media are integrated without rectangular card cuts',()=
  const html=read('../public/index.html'), css=read('../public/visual.css');
  for(const cls of ['hero-art','speaking-media','certificate-media'])assert.match(html,new RegExp('class="'+cls+'(?: |")'));
  assert.match(css,/mask-image:radial-gradient/);
+ assert.match(css,/\.hero\{[\s\S]*?background:#fff;/);
+ assert.match(css,/\.hero::before\{content:none;display:none\}/);
+ assert.match(css,/\.hero-art\{[\s\S]*?background:transparent;box-shadow:none;/);
  assert.match(css,/\.hero-art>img/);
  assert.match(css,/mix-blend-mode:multiply/);
  assert.doesNotMatch(html,/speaking-floating-pill/);
@@ -48,7 +51,7 @@ test('illustration edges fully feather into white and do not crop on narrow mobi
  assert.match(css,/-webkit-mask-image:radial-gradient/);
  assert.match(css,/\.speaking-media img,\.certificate-media img\{width:100%;left:0\}/);
  assert.match(css,/\.hero-art>img,\.speaking-media img,\.certificate-media img\{-webkit-mask-repeat:no-repeat/);
- assert.match(html,/visual\.css\?v=6\.3\.4/);
+ assert.match(html,/visual\.css\?v=6\.3\.5/);
 });
 test('new slogans stay coherent through the landing journey',()=>{
  const html=read('../public/index.html');
