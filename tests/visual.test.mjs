@@ -30,6 +30,6 @@ test('motion respects user preference and service worker refreshes design',()=>{
  const css=read('../public/intro.css')+read('../public/visual.css');
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  const worker=read('../public/sw.js');
- assert.match(worker,/easay-static-v5\.5/);
+ assert.match(worker,/easay-static-v5\.6/);
  for(const asset of ["'/visual.css'","'/intro.css'","'/images/hero.webp'","'/images/speaking.webp'","'/images/certificate.webp'"])assert.ok(worker.includes(asset));
 });

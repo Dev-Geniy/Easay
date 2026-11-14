@@ -92,3 +92,10 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - Replaced the review empty state with a compact SVG mark, one clear next action, and a light explanatory disclosure. Kept the same spaced-repetition data and review controls.
 - Removed redundant sidebar AI promotion and made AI Mentor available in mobile bottom navigation; settings remain accessible via the top-right avatar.
 - Added a small pastel-based design system in `public/minimal.css`, accessible focus indicators, and reduced-motion support.
+
+## Easay 5.6 — optional guided walkthrough and visual focus
+
+- A **15-step guided tour** highlights one real control at a time. It walks through Home, Courses, Course overview, Lesson, Review, Speaking Practice, AI Mentor and Settings. Each step positions its explanation next to the focused control and navigates to the correct screen.
+- Next / Back / Skip, Escape, keyboard arrows and mobile layouts are supported. It runs once after onboarding (or after upgrade), excluding invitation deep links. Restart via Settings.
+- Tour completion uses a separate localStorage flag `easay:tour:v1`; the tour never changes saved learner progress or sends AI requests.
+- `public/tour.css` boosts the single primary action per screen with restrained contrast and supports reduced-motion preferences.

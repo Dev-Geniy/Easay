@@ -38,7 +38,7 @@ test('review empty icon is constrained and original review controls remain',()=>
 test('new stylesheet and assets are included in PWA cache',()=>{
  const h=read('../public/app.html'),w=read('../public/sw.js');
  assert.match(h,/\/minimal\.css/);
- assert.match(w,/easay-static-v5\.5/);
+ assert.match(w,/easay-static-v5\.6/);
  assert.match(w,/['"]\/minimal\.css['"]/);
  assert.match(read('../public/minimal.css'),/@media\(prefers-reduced-motion:reduce\)/);
 });

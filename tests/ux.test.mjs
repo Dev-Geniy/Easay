@@ -41,5 +41,5 @@ test('service worker pre-caches all new teacher assets',()=>{
  for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/minimal.css'","'/exam.html'","'/exam-ui.js'","'/exam.js'","'/certificate.html'","'/certificate.js'"]){
   assert.ok(worker.includes(asset),'missing offline asset '+asset);
  }
- assert.match(worker,/easay-static-v5.5/);
+ assert.match(worker,/easay-static-v5.6/);
 });
