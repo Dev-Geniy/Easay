@@ -1,0 +1,50 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {examSessionKey,readExamSession,saveExamSession,clearExamSession} from '../public/exam-session.js';
+import {readFileSync} from 'node:fs';
+const id='b7aa299d-d36c-4d07-a0b8-2f0296d4a155';
+const memory=()=>{const map=new Map();return {map,getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)}};
+test('exam position and chosen answers survive reload until 45-minute expiration',()=>{
+ const store=memory(),expiresAt=Date.now()+45*60*1000;
+ assert.equal(saveExamSession({courseId:'basics',attemptId:id,expiresAt,index:16,answers:{q0:'Apple',q14:'School'}},store),true);
+ const same=readExamSession('basics',store);
+ assert.equal(same.attemptId,id);assert.equal(same.index,16);
+ assert.deepEqual(same.answers,{q0:'Apple',q14:'School'});
+ assert.equal(readExamSession('basics',store,expiresAt+1),null);
+ assert.equal(store.map.has(examSessionKey('basics')),false);
+});
+test('exam record is per-course, never stores answer key or full name',()=>{
+ const store=memory(),expiresAt=Date.now()+100000;
+ saveExamSession({courseId:'everyday',attemptId:id,expiresAt,index:2,answers:{q0:'Hello'},correct:'No',name:'User FIO'},store);
+ assert.equal(readExamSession('basics',store),null);
+ const raw=store.getItem(examSessionKey('everyday'));
+ assert.ok(raw.includes('"q0":"Hello"'));
+ assert.ok(!raw.includes('User FIO'));assert.ok(!raw.includes('correct'));
+ clearExamSession('everyday',store);
+ assert.equal(readExamSession('everyday',store),null);
+});
+test('app and exam UI use 36 lessons and persist verified exam throughout navigation',()=>{
+ const app=readFileSync(new URL('../public/app.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../public/exam-ui.js',import.meta.url),'utf8');
+ assert.doesNotMatch(app,/pct\(n,12\)/);
+ assert.match(app,/pct\(n,c\.lessons\.length\)/);
+ assert.match(ui,/readExamSession\(courseId\)/);
+ assert.match(ui,/saveExamSession/);
+ assert.match(ui,/clearExamSession/);
+ assert.match(ui,/&resume=/);
+ assert.match(ui,/exam\.answers\[q\.id\]=.*persist\(\)/);
+ assert.match(ui,/addEventListener\('click',\(\)=>startExam\(\)\)/);
+ assert.match(ui,/Фамилия, имя, отчество/);
+ assert.match(ui,/score-out.*% правильных ответов/);
+});
+test('certificate FIO and percentage are honest and server-derived',()=>{
+ const html=readFileSync(new URL('../public/certificate.html',import.meta.url),'utf8');
+ const script=readFileSync(new URL('../public/certificate.js',import.meta.url),'utf8');
+ const api=readFileSync(new URL('../functions/api/exam.js',import.meta.url),'utf8');
+ assert.match(html,/ФИО, УКАЗАННОЕ УЧЕНИКОМ/);
+ assert.match(html,/Личность по документам и завершение всех уроков/);
+ assert.match(script,/Number\(cert\.score\)\+'%'/);
+ assert.match(api,/result\.score/);
+ assert.match(api,/name\.split\(/);
+ assert.doesNotMatch(api,/score:data\.score/);
+});

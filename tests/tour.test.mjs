@@ -50,3 +50,10 @@ test('penultimate tour step highlights the actual support card and keeps donatio
  const tour=read('../public/tour.js');
  assert.match(tour,/scrollIntoView/);
 });
+
+test('guided tour correctly describes five stages',()=>{
+ const lesson=TOUR_STEPS.find(s=>s.title==='Пять шагов урока');
+ assert.ok(lesson);
+ assert.match(lesson.description,/карточки закрепления/);
+ assert.doesNotMatch(lesson.description,/четыре.*этапа/i);
+});

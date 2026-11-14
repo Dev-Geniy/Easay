@@ -33,3 +33,13 @@ test('review modal supports typing, escape, reduced motion and a clear secondary
  assert.match(css,/quiz-feedback-retry/);
  assert.match(css,/prefers-reduced-motion/);
 });
+
+test('automatic AI review respects learner settings and manual questions stay available',()=>{
+ const source=read('../public/quiz-feedback.js'),app=read('../public/app.js');
+ assert.match(app,/autoExplain:state\.autoCoach/);
+ assert.match(source,/if\(autoExplain\)void explain\(s\)/);
+ assert.match(source,/s\.busy=false/);
+ assert.match(source,/get\('#quizFeedbackSend'\)\.disabled=false/);
+ assert.doesNotMatch(app,/pct\(n,12\)/);
+ assert.match(app,/pct\(n,c\.lessons\.length\)/);
+});
