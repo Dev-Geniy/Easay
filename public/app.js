@@ -7,7 +7,7 @@ import {glyph} from './icons.js';
 import {createTour} from './tour.js';
 import {createQuizFeedback} from './quiz-feedback.js';
 import {deckForLesson} from './flashcards.js';
-import {REVIEW_RATINGS,isReviewDue,nextReviewDelay,reviewDelayLabel,scheduleReview} from './review-scheduler.js';
+import {REVIEW_RATINGS,isReviewDue,nextReviewDelay,reviewDelayLabel,scheduleReview,nextReviewAt,nextReviewLabel} from './review-scheduler.js';
 
 const KEY='easay:v3:learner';
 const $=(selector,root=document)=>root.querySelector(selector);
@@ -21,6 +21,7 @@ let state=readState();
 let reviewInitialized=false;
 let reviewPractice=false;
 let homeStatsOpen=false;
+let reviewUiRefreshTimer=null;
 let showStudyPlan=false;
 let activeTeacherKey='',teacherTypingTimer=null;
 let pairLessonId=null;
@@ -73,6 +74,9 @@ function home(){
  const completed=doneCount(primary);
  const progress=pct(completed,primary.lessons.length);
  const due=dueReviewItems().length;
+ const saved=totalReviewItems();
+ const upcoming=nextReviewAt(state.savedWords,state.reviews);
+ const reviewSummary=due?due+' фраз к повторению':!saved?'Сохраняй фразы из уроков':upcoming?'Следующее: '+nextReviewLabel(upcoming):'Пока нет запланированных карточек';
  const finished=completed===primary.lessons.length;
  const rhythm=({gentle:'В своём темпе',regular:'Несколько раз в неделю',daily:'Каждый день'})[state.pace]||'В своём темпе';
  return `<div class="home-quiet home-v2">
@@ -92,7 +96,7 @@ function home(){
   <div class="home-quick-actions" aria-label="Повторение и прогресс">
    <button type="button" class="home-quick-card" data-action="review">
     <span class="home-quick-icon" aria-hidden="true">${glyph('stack')}</span>
-    <span class="home-quick-body"><strong>Повторение</strong><small>${due?due+' фраз к повторению':'Сегодня всё повторено'}</small></span>
+    <span class="home-quick-body"><strong>Повторение</strong><small>${escapeHTML(reviewSummary)}</small></span>
     <span class="home-quick-arrow" aria-hidden="true">→</span>
    </button>
    <button type="button" class="home-quick-card" data-action="home-stats" aria-expanded="${homeStatsOpen}" aria-controls="homeProgressDetails">
@@ -165,6 +169,8 @@ function lessonView(){
 
 function reviewView(){
  const due=dueReviewItems(),count=totalReviewItems();
+ const upcoming=nextReviewAt(state.savedWords,state.reviews);
+ const nextLabel=upcoming?'Следующее повторение: '+nextReviewLabel(upcoming)+'.':'';
  if(!reviewInitialized){reviewList=due;reviewInitialized=true;}
  flashIndex=Math.min(flashIndex,Math.max(reviewList.length-1,0));
  const current=reviewList[flashIndex];
@@ -180,8 +186,8 @@ function reviewView(){
    </button>
    ${flashRevealed?`<p class="review-grade-prompt">${reviewPractice?'Свободная тренировка не меняет даты повторения.':'Оцени, как легко удалось вспомнить фразу:'}</p>${controls}`:'<div class="flash-controls"><button class="btn" data-action="flip">Показать перевод →</button></div>'}
   </div>`:
-  `<div class="review-empty"><span class="review-empty-mark" aria-hidden="true">${glyph(count?'award':'book')}</span><h2>${reviewPractice?'Тренировка завершена':count?'На сегодня всё!':'Здесь появятся твои фразы'}</h2>
-   <p>${reviewPractice?'Все выбранные фразы просмотрены. Расписание повторения не изменилось.':count?'Сегодня нет фраз по расписанию. Дополнительная практика доступна по желанию.':'Добавляй фразы во время уроков, чтобы закреплять их здесь.'}</p>
+  `<div class="review-empty"><span class="review-empty-mark" aria-hidden="true">${glyph(count?'award':'book')}</span><h2>${reviewPractice?'Тренировка завершена':count?'Пока всё повторено!':'Здесь появятся твои фразы'}</h2>
+   <p>${reviewPractice?'Все выбранные фразы просмотрены. Расписание повторения не изменилось.':count?'Сейчас нет фраз к повторению. '+nextLabel+' Дополнительная практика доступна по желанию.':'Добавляй фразы во время уроков, чтобы закреплять их здесь.'}</p>
    <button class="btn" data-action="${reviewPractice?'review-scheduled':count?'review-refresh':'catalog'}">${reviewPractice?'Вернуться к повторению →':count?'Тренироваться дополнительно →':'Выбрать урок →'}</button></div>`;
  return `<div class="quiet-page review-page">
   <header class="quiet-page-head"><h1>${reviewPractice?'Дополнительная практика':'Повторение'}</h1><p>${reviewPractice?'Повторяй любые сохранённые фразы без изменения расписания.':'Вспоминай фразы с интервалами, которые зависят от твоих ответов.'}</p></header>
@@ -259,7 +265,22 @@ function mentorView(){
  </div>`;
 }
 function profileView(){const goal=getCourse(state.primary);return `${pageHeading('Мой профиль','Настрой свой учебный маршрут и приложение под себя.','НАСТРОЙКИ')}<div class="profile-help"><span>Впервые здесь или хочешь освежить навигацию?</span><button class="guide-launch" data-action="tour-start">Показать, как всё работает →</button></div><div class="profile-grid"><div class="card"><h2 class="h2">Обучение</h2><div class="field"><label for="profileName">Как тебя называть (необязательно)</label><input id="profileName" maxlength="32" value="${escapeHTML(state.firstName)}" placeholder="Например, Саша"></div><div class="field"><label for="profileLevel">Твой уровень</label><select id="profileLevel">${['A1','A2','B1','B2'].map(level=>`<option ${state.level===level?'selected':''}>${level}</option>`).join('')}</select></div><div class="field"><label for="profileGoal">Главный курс</label><select id="profileGoal">${COURSES.map(c=>`<option value="${c.id}" ${state.primary===c.id?'selected':''}>${escapeHTML(c.ru)} (${c.level})</option>`).join('')}</select></div><div class="toggle-row"><div><strong>Автоматический разбор теста с ИИ</strong><p class="note" style="margin:5px 0 0">Если выключено, правильные ответы остаются доступными без ИИ. В чате можно спросить наставника вручную.</p></div><input type="checkbox" id="profileAuto" ${state.autoCoach?'checked':''}></div><div class="field"><label for="profilePace">Удобный ритм</label><select id="profilePace"><option value="gentle" ${state.pace==='gentle'?'selected':''}>В своём темпе</option><option value="regular" ${state.pace==='regular'?'selected':''}>Несколько раз в неделю</option><option value="daily" ${state.pace==='daily'?'selected':''}>Каждый день</option></select></div><button class="btn" data-action="save-profile" style="margin-top:24px">Сохранить изменения</button><div style="margin-top:25px" class="row" ><button class="text-link" data-action="export">⇩ Экспорт прогресса</button><button class="text-link" data-action="import">⇧ Импорт JSON</button><input id="importFile" type="file" accept="application/json,.json" style="display:none"></div><button class="text-link" data-action="reset" style="color:#c54f58;margin-top:18px">Очистить локальный прогресс</button></div><aside class="card"><h2 class="h2">Текущий маршрут</h2><span class="profile-glyph">${glyph(goal?.id||"everyday")}</span><h3 class="h3">${escapeHTML(goal?.title||'Everyday English')}</h3><p class="note">${escapeHTML(goal?.desc||'')}</p><div class="free-profile-note" style="margin-top:25px"><strong>Все курсы бесплатны.</strong><p>Поддержка Easay полностью добровольная. 50% донатов мы направляем на питание и развитие детей SkyKids.</p><a href="https://send.monobank.ua/jar/9ECZLkLXkq" target="_blank" rel="noopener noreferrer">Поддержать проект ↗</a></div></aside></div>`}
-function render(restoreSearch=false){navRender();$('#breadcrumb').textContent=({home:'Моё обучение',catalog:'Каталог курсов',course:'Программа курса',lesson:'Урок',review:'Повторение',practice:'Разговорная практика',mentor:'ИИ-наставник',profile:'Мой профиль'})[page]||'Easay';let body=page==='home'?home():page==='catalog'?catalog():page==='course'?courseView():page==='lesson'?lessonView():page==='review'?reviewView():page==='practice'?practiceView():page==='mentor'?mentorView():profileView();const active=document.activeElement?.id;const selection=(active==='courseSearch'&&restoreSearch)?$('#courseSearch')?.selectionStart:null;$('#content').innerHTML=body;if(restoreSearch&&active==='courseSearch'){const el=$('#courseSearch');el?.focus();el?.setSelectionRange(selection||0,selection||0)}if(page==='mentor')scrollChat('#mentorChat');if(page==='lesson')syncTeacher();if(page==='practice')scrollChat('#practiceChat');tour?.refreshAfterRender();}
+// Refresh the home and empty scheduled-review screen when a 10-minute card becomes due.
+function scheduleReviewUiRefresh(){
+ if(reviewUiRefreshTimer!==null){clearTimeout(reviewUiRefreshTimer);reviewUiRefreshTimer=null;}
+ if(page!=='home'&&(page!=='review'||reviewPractice||reviewList.length>0))return;
+ const upcoming=nextReviewAt(state.savedWords,state.reviews);
+ if(upcoming===null)return;
+ const delay=Math.min(2147483647,Math.max(1000,upcoming-Date.now()+150));
+ reviewUiRefreshTimer=setTimeout(()=>{
+  reviewUiRefreshTimer=null;
+  if(page==='review'&&!reviewPractice&&!reviewList.length){
+   reviewInitialized=false;reviewList=[];flashIndex=0;flashRevealed=false;
+  }
+  if(page==='home'||page==='review')render();
+ },delay);
+}
+function render(restoreSearch=false){scheduleReviewUiRefresh();navRender();$('#breadcrumb').textContent=({home:'Моё обучение',catalog:'Каталог курсов',course:'Программа курса',lesson:'Урок',review:'Повторение',practice:'Разговорная практика',mentor:'ИИ-наставник',profile:'Мой профиль'})[page]||'Easay';let body=page==='home'?home():page==='catalog'?catalog():page==='course'?courseView():page==='lesson'?lessonView():page==='review'?reviewView():page==='practice'?practiceView():page==='mentor'?mentorView():profileView();const active=document.activeElement?.id;const selection=(active==='courseSearch'&&restoreSearch)?$('#courseSearch')?.selectionStart:null;$('#content').innerHTML=body;if(restoreSearch&&active==='courseSearch'){const el=$('#courseSearch');el?.focus();el?.setSelectionRange(selection||0,selection||0)}if(page==='mentor')scrollChat('#mentorChat');if(page==='lesson')syncTeacher();if(page==='practice')scrollChat('#practiceChat');tour?.refreshAfterRender();}
 function go(to,id){quizFeedback?.close();if(to==='review'){reviewPractice=false;reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false;}if(to==='course'){courseId=id||courseId;if(!getCourse(courseId))courseId=COURSES[0].id;}if(to==='lesson'){lessonId=id||lessonId;if(!getLesson(lessonId))lessonId=ALL_LESSONS[0].id;step=0;answers={};quizChecked=false;quizScore=0;lessonDeckIndex=0;lessonDeckRevealed=false;lessonCoach='';lessonCoachId=lessonId;}if(to!=='lesson'){activeTeacherKey='';stopTeacher();}page=to;render();window.scrollTo({top:0,behavior:'instant'});/* Offline teacher introduces the lesson. Remote Groq help remains optional. */}
 function stopTeacher(){
  if(teacherTypingTimer){clearInterval(teacherTypingTimer);teacherTypingTimer=null;}
@@ -342,6 +363,14 @@ function downloadJSON(){const data=JSON.stringify(state,null,2);const url=URL.cr
 async function importJSON(file){if(!file)return;if(file.size>1000000)return toast('Файл больше 1 МБ.');try{const data=JSON.parse(await file.text());if(data.version!==3||typeof data.completed!=='object'||!data.completed||!Array.isArray(data.mistakes)||typeof data.savedWords!=='object')throw Error('Неподходящий формат');if(!confirm('Заменить текущий прогресс данными из файла?'))return;state={...structuredClone(initial),...data,firstName:String(data.firstName||'').slice(0,32),primary:getCourse(data.primary)?data.primary:'everyday',mentorHistory:[],completed:Object.fromEntries(Object.entries(data.completed).filter(([key])=>getLesson(key))),savedWords:Object.fromEntries(Object.entries(data.savedWords||{}).filter(([key])=>/^(?:[a-z]+)-\d+:\d$/.test(key)))};save();go('home');toast('Прогресс импортирован.')}catch(e){toast('Файл не подходит для импорта: '+e.message)}}
 
 // All navigation and lesson controls are event-delegated, avoiding orphaned event handlers.
+// Recheck review times when the browser resumes after sleep or a hidden tab.
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState!=='visible')return;
+ if(page==='home')render();
+ else if(page==='review'&&!reviewPractice&&!reviewList.length){
+  reviewInitialized=false;render();
+ }
+});
 document.addEventListener('click',async event=>{
 const el=event.target.closest('[data-action]');if(!el)return;const action=el.dataset.action;
 if(action==='tour-start'){tour?.start();return;}
