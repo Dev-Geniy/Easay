@@ -33,5 +33,5 @@ test('offline cache includes all new course, flashcard and tour assets',()=>{
  for(const asset of ["'/teacher.js'","'/guided.css'","'/app.html'","'/refine.css'","'/minimal.css'","'/exam.html'","'/exam-ui.js'","'/exam.js'","'/certificate.html'","'/certificate.js'","'/course-extensions.js'","'/course-chapters.js'","'/flashcards.js'","'/learning.css'"]){
   assert.ok(worker.includes(asset),'missing offline asset '+asset);
  }
- assert.match(worker,/easay-static-v5\.9/);
+ assert.match(worker,/easay-static-v6\.0/);
 });

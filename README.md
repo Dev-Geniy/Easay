@@ -124,3 +124,12 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - The 40-question final exam still scores out of 100, with at least one question from **each of the 36 lessons**, and certificate threshold of 90/100.
 - Optional exam preparation offers all **144 flashcards per course**. The flashcard stage in each individual lesson remains four cards.
 - Refreshed PWA precache version and included `public/course-chapters.js` for offline study.
+
+## Easay 6.0 — Lesson quiz feedback tutor
+
+- Ordinary 3-question lesson quizzes now automatically open a focused correction dialog. It identifies correct and incorrect answers from the local deterministic marking key; the score is never delegated to AI.
+- The modal shows the actual selected and correct answers immediately, then requests a supplementary Groq explanation using `feedback` mode. When Groq is unavailable or its daily quota is exhausted, the deterministic answer summary remains readable.
+- Students can ask follow-up questions in the same popup through `chat` mode, grounded in the graded answer key and lesson topic; responses are shown with a skip-friendly typing effect.
+- Two bottom controls: green **ПЕРЕСДАТЬ** resets the local lesson quiz, and subtle **Продолжить без пересдачи** advances only when the original 2/3 passing criterion has been met. Unpassed lessons remain uncredited.
+- The final 40-question server-verified certificate exam and its existing **Пройти ещё раз** behavior are intentionally unchanged.
+- Same local progress storage, offline lessons, and API call quotas. Keyboard Escape, dialog focus handling and reduced-motion support are included.
