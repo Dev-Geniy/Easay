@@ -10,7 +10,7 @@ else{
   let localName='';try{localName=JSON.parse(localStorage.getItem('easay:cert-names:v1')||'{}')[id]||''}catch{}
   $('name').textContent=cert.recipient||localName||'Имя не опубликовано';
   $('course').textContent=cert.courseTitle;
-  $('score').textContent=cert.score+'/100';
+  $('score').textContent=Number(cert.score)+'%';
   $('date').textContent=new Intl.DateTimeFormat('ru-RU',{dateStyle:'long'}).format(new Date(cert.issuedAt+'T12:00:00'));
   $('id').textContent=cert.id;$('link').textContent='Проверка: '+link();
   $('error').hidden=true;$('certificate').hidden=false;$('copy').hidden=false;$('print').hidden=false;

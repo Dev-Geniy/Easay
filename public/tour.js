@@ -9,7 +9,7 @@ export const TOUR_STEPS=Object.freeze([
  {page:'catalog',target:'#courseGrid .course-card',title:'Выбор направления',description:'Открой понравившийся курс. Ты можешь менять направление в любой момент.'},
  {page:'course',target:'.course-cover [data-action="lesson"]',title:'Уроки курса',description:'Здесь видны все уроки. Продолжение открывает следующий по порядку.'},
  {page:'lesson',target:'.focus-phrase',title:'Сначала — одна фраза',description:'Послушай фразу, прочитай перевод и попробуй повторить вслух.'},
- {page:'lesson',target:'.lesson-controls [data-action="step-next"]',title:'Четыре простых этапа',description:'Переходи дальше: фраза, четыре выражения, диалог и небольшой тест.'},
+ {page:'lesson',target:'.lesson-controls [data-action="step-next"]',title:'Пять шагов урока',description:'Сначала фраза и новые выражения, затем диалог, карточки закрепления и тест с разбором ответов.'},
  {page:'lesson',target:'[data-action="review"]',title:'Повторение',description:'Сохранённые фразы можно повторять отдельно. Это помогает запомнить их надолго.'},
  {page:'review',target:'.review-surface',title:'Карточки для памяти',description:'Когда здесь появятся фразы, нажми на карточку, чтобы увидеть перевод.'},
  {page:'review',target:'[data-action="practice"]',title:'Разговорная практика',description:'Здесь можно потренировать английский на реальных жизненных ситуациях.'},

@@ -1,19 +1,21 @@
-# Cloudflare Pages deployment and certificate verification
+# Сертификаты Easay 6.2 — текущая архитектура
 
-Easay source: https://github.com/Dev-Geniy/Easay
+Easay использует **Cloudflare Worker** (`worker/index.js`) и D1 (`EASAY_DB`), настроенную в `wrangler.toml`. Старые инструкции по развёртыванию нового Cloudflare Pages или переносу с Netlify устарели.
 
-## Deploy (free plan)
-1. Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git.
-2. Choose Dev-Geniy/Easay, main branch, build command: node scripts/build.mjs, build output: dist.
-3. Deploy. The static landing, lessons, sharing, badge system, and practice examinations work without API setup.
-4. To enable online certificates: create Cloudflare D1 database easay-certificates; execute SQL in db/schema.sql in the D1 console.
-5. In Pages project Settings → Functions → D1 database binding: variable EASAY_DB, database easay-certificates. Set an environment secret CERT_HASH_SECRET to a random string of at least 24 characters (not committed to code).
-6. Redeploy to activate /api/exam and /api/certificate. A verified GET /api/exam?course=basics should return mode: verified and questions.
-7. On Netlify or unbound Cloudflare, exams run as practice and cannot issue certificates; do not claim otherwise.
+## Экзамен
+- 11 направлений, по 36 уроков. Серверный экзамен: 40 вопросов, балл = 2,5 за правильный ответ, порог 90/100.
+- Ограничение: одна *новая* серверная попытка на анонимный идентификатор браузера за 24 часа, а не на Wi-Fi; пользователь может восстановить эту же попытку в течение 45 минут.
+- При старте сервер возвращает неответные вопросы и `attemptId`, ответы сохраняются в localStorage с датой окончания. При восстановлении сервер проверяет соответствие попытки идентификатору браузера, срок и статус `used`.
+- Серверная оценка вычисляется по ответному ключу в D1, не доверяет баллу, переданному браузером.
+- На форме после 40 вопросов указывается фамилия, имя и отчество при наличии. ФИО вводится самостоятельно и не подтверждает личность. Публичное отображение ФИО требует отдельного согласия; без согласия полное имя видно только в локальной копии на устройстве, где оно сохранялось.
+- Сертификат содержит ФИО (если доступно), название направления, **серверный процент правильных ответов**, дату и проверяемый номер.
+- Сертификат подтверждает успешную сдачу **внутреннего экзамена**, а не официальную квалификацию, личность или завершение всех уроков. Клиентская разблокировка после 36 уроков **не является серверной аттестацией прохождения**.
+- Тренировочный экзамен не выдаёт проверяемый сертификат.
 
-## Notes
-- The existing /api/ai uses Netlify Functions and requires separate Cloudflare Workers port before Groq chat works on Cloudflare.
-- Each exam has 20 questions (5 points each). Pass >=90. The exam verifies answers on the server, but not legal identity or previous offline course progress.
-- Certificates are issued only by Easay, not accredited by an education regulator. Shareable verification URLs expose the name only when the learner explicitly opted in.
-- Print as PDF from the verified certificate page. Never fabricate a certification when backend is unavailable.
-- Start with a test migration and verify the full flow before public promotion. Free service quotas and plan terms may change.
+## Инфраструктура и секреты
+
+- `wrangler.toml` уже содержит реальный D1 database ID и binding `EASAY_DB`; схема существующих таблиц в `db/schema.sql`.
+- Требуются существующие настроенные в Cloudflare секреты `CERT_HASH_SECRET` и `GROQ_API_KEY` для соответствующих серверных возможностей. В GitHub их не публиковать.
+- Изменения версии 6.2 используют существующие таблицы — дополнительная миграция базы данных не требуется.
+- Сборка `npm run build`, тесты `npm test`, развёртывание `npx wrangler deploy` через имеющийся пайплайн Cloudflare.
+- Проверить реальную публикацию/биндинги по исходникам невозможно; CI проверяет код, а не работоспособность сторонних сервисов.

@@ -9,6 +9,6 @@ export async function onRequestGet({request,env}){
   if(!cert)return json({verified:false,error:'Сертификат не найден в реестре Easay.'},404);
   return json({verified:true,id:cert.id,courseId:cert.course_id,courseTitle:cert.course_title,score:cert.score,
    issuedAt:new Date(cert.created_at).toISOString().slice(0,10),recipient:cert.publish_name?cert.recipient:null,
-   disclaimer:'Подтверждает сдачу внутреннего экзамена Easay. Не является государственной квалификацией или независимой аккредитацией.'});
+   disclaimer:'Подтверждает результат внутреннего экзамена Easay. ФИО указано учеником, личность и прохождение всех уроков сервером не проверяются. Не является государственной квалификацией или независимой аккредитацией.'});
  }catch{return json({verified:false,error:'Реестр временно недоступен.'},503)}
 }
