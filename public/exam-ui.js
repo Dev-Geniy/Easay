@@ -1,4 +1,5 @@
 import {getCourse} from './courses.js';
+import {getOrCreateLearnerId} from './learner-identity.js';
 import {deckForCourse} from './flashcards.js';
 import {buildExam,gradeExam,EXAM_QUESTIONS,PASS_SCORE} from './exam.js';
 const $=id=>document.getElementById(id);
@@ -20,7 +21,7 @@ function renderPreExam(){
  const item=review.cards[review.index];
  if(!item)return startExam();
  const last=review.index===review.cards.length-1;
- $('exam').innerHTML='<div class="fade pre-exam"><div class="exam-top"><span class="badge">ПОВТОРЕНИЕ ПЕРЕД ЭКЗАМЕНОМ</span><span class="badge gray">'+(review.index+1)+' / '+review.cards.length+'</span></div><div class="bar"><span style="width:'+Math.round((review.index+1)*100/review.cards.length)+'%"></span></div><h2 class="pre-exam-title">Вспомни перевод</h2><p class="subtle">Переверни карточку и проверь себя. Это тренировка, она не влияет на баллы.</p><p class="subtle">Серверный экзамен можно начать один раз в 24 часа. После старта попытка действительна 45 минут.</p><button class="pre-exam-card" type="button" id="examFlip" aria-label="'+(review.flipped?'Показать английский':'Открыть перевод')+'"><span>'+(review.flipped?'ПЕРЕВОД':'АНГЛИЙСКАЯ ФРАЗА')+'</span><strong>'+escape(review.flipped?item.ru:item.en)+'</strong><small>'+(review.flipped?'Нажми, чтобы увидеть английский':'Как это переводится? Нажми, чтобы проверить')+'</small></button><div class="buttons pre-exam-actions"><button class="btn secondary" id="examSkip">Начать экзамен</button><button class="btn" id="examNext" '+(review.flipped?'':'disabled')+'>'+(last?'К экзамену →':'Следующая →')+'</button></div></div>';
+ $('exam').innerHTML='<div class="fade pre-exam"><div class="exam-top"><span class="badge">ПОВТОРЕНИЕ ПЕРЕД ЭКЗАМЕНОМ</span><span class="badge gray">'+(review.index+1)+' / '+review.cards.length+'</span></div><div class="bar"><span style="width:'+Math.round((review.index+1)*100/review.cards.length)+'%"></span></div><h2 class="pre-exam-title">Вспомни перевод</h2><p class="subtle">Переверни карточку и проверь себя. Это тренировка, она не влияет на баллы.</p><p class="subtle">На этом браузере доступна одна серверная попытка в 24 часа. После старта она действительна 45 минут.</p><button class="pre-exam-card" type="button" id="examFlip" aria-label="'+(review.flipped?'Показать английский':'Открыть перевод')+'"><span>'+(review.flipped?'ПЕРЕВОД':'АНГЛИЙСКАЯ ФРАЗА')+'</span><strong>'+escape(review.flipped?item.ru:item.en)+'</strong><small>'+(review.flipped?'Нажми, чтобы увидеть английский':'Как это переводится? Нажми, чтобы проверить')+'</small></button><div class="buttons pre-exam-actions"><button class="btn secondary" id="examSkip">Начать экзамен</button><button class="btn" id="examNext" '+(review.flipped?'':'disabled')+'>'+(last?'К экзамену →':'Следующая →')+'</button></div></div>';
  $('examFlip').addEventListener('click',()=>{review.flipped=!review.flipped;renderPreExam()});
  $('examNext').addEventListener('click',()=>{if(!review.flipped)return;if(last)startExam();else{review.index++;review.flipped=false;renderPreExam()}});
  $('examSkip').addEventListener('click',startExam);
@@ -29,15 +30,22 @@ async function startExam(practiceOnly=false){
  exam.mode='loading';exam.questions=[];exam.answers={};exam.index=0;exam.result=null;exam.busy=false;exam.blocked=null;
  $('exam').innerHTML='<div class="loading">Готовим '+EXAM_QUESTIONS+' вопросов по материалу курса…</div>';
  if(practiceOnly){const local=buildExam(courseId,(Date.now()>>>0)^4556);exam.mode='practice';exam.questions=local.questions;render();return;}
+ const learnerId=getOrCreateLearnerId();
+ if(!learnerId){
+  exam.blocked={code:'LEARNER_ID_REQUIRED'};
+  renderIdentityUnavailable();
+  return;
+ }
  try{
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),6500);
   let response;
-  try{response=await fetch('/api/exam?course='+encodeURIComponent(courseId),{cache:'no-store',signal:controller.signal})}finally{clearTimeout(timeout)}
+  try{response=await fetch('/api/exam?course='+encodeURIComponent(courseId),{cache:'no-store',signal:controller.signal,headers:{'x-easay-learner-id':learnerId}})}finally{clearTimeout(timeout)}
   if(!response.ok){
-   if(response.status===429){
+   if(response.status===429||response.status===400){
     const data=await response.json();
     if(data.code==='EXAM_DAILY_LIMIT'){exam.blocked=data;renderLimit();return;}
+    if(data.code==='LEARNER_ID_REQUIRED'){renderIdentityUnavailable();return;}
    }
    throw Error('Сервер пока не подключён');
   }
@@ -50,12 +58,16 @@ async function startExam(practiceOnly=false){
  }
  render();
 }
+function renderIdentityUnavailable(){
+ $('exam').innerHTML='<div class="fade"><span class="badge gray">СЕРВЕРНЫЙ ЭКЗАМЕН</span><h2 class="final-title">Не удалось сохранить данные браузера</h2><p class="subtle">Для отдельной попытки без регистрации Easay нужно сохранить анонимный идентификатор в браузере. Проверь, что сохранение данных сайта разрешено. Можно продолжить тренировку без сертификата.</p><div class="buttons"><a href="/app.html" class="btn secondary">← К урокам</a><button class="btn" id="practiceInstead">Тренироваться без сертификата →</button></div></div>';
+ $('practiceInstead').addEventListener('click',()=>startExam(true));
+}
 function renderLimit(){
  const until=Number(exam.blocked?.nextAttemptAt);
  const date=Number.isFinite(until)&&until>Date.now()
   ?new Intl.DateTimeFormat('ru-RU',{dateStyle:'long',timeStyle:'short'}).format(new Date(until))
   :'через 24 часа после начала прошлой попытки';
- $('exam').innerHTML='<div class="fade"><span class="badge gray">СЕРВЕРНЫЙ ЭКЗАМЕН</span><h2 class="final-title">Попытка уже использована</h2><p class="subtle">Сертификат Easay можно получить после серверной проверки. Разрешена одна серверная попытка за 24 часа.</p><div class="notice warn"><strong>Следующая попытка: '+escape(date)+'</strong><p>Пока можно повторять слова и пройти тренировочный экзамен. Он не выдаёт сертификат.</p></div><div class="buttons"><a class="btn secondary" href="/app.html">← К урокам</a><button class="btn" id="practiceInstead">Тренироваться без сертификата →</button></div></div>';
+ $('exam').innerHTML='<div class="fade"><span class="badge gray">СЕРВЕРНЫЙ ЭКЗАМЕН</span><h2 class="final-title">Попытка уже использована</h2><p class="subtle">Сертификат Easay можно получить после серверной проверки. Разрешена одна серверная попытка за 24 часа на этот браузер. Другие ученики в общей сети не используют твой лимит.</p><div class="notice warn"><strong>Следующая попытка: '+escape(date)+'</strong><p>Пока можно повторять слова и пройти тренировочный экзамен. Он не выдаёт сертификат.</p></div><div class="buttons"><a class="btn secondary" href="/app.html">← К урокам</a><button class="btn" id="practiceInstead">Тренироваться без сертификата →</button></div></div>';
  $('practiceInstead').addEventListener('click',()=>startExam(true));
 }
 function render(){

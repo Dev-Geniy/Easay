@@ -1,25 +1,22 @@
-// Cloudflare Pages Functions: GET starts one timed exam per rolling 24 hours; POST grades server-side.
+// Cloudflare Pages Functions: one timed exam per browser every rolling 24h; POST grades server-side.
 // Without an EASAY_DB D1 binding, the browser falls back to a local PRACTICE exam.
 // A certificate verifies the final exam, not identity or formal accreditation.
 import {buildExam,gradeExam,PASS_SCORE} from '../../public/exam.js';
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
 const sameOrigin=req=>{const origin=req.headers.get('origin');return !origin||origin===new URL(req.url).origin;};
-// Stable pseudonymous per-IP hash across dates: a daily salt used to reset at
-// UTC midnight and accidentally permitted multiple attempts in <24 hours.
+// Rate-limiting pseudonymous IDs separates pupils sharing a public IP.
+// Stored in the existing ip_hash D1 column for zero-migration deployment.
+// This is intentionally per-browser, not authenticated per-person enforcement.
 const ATTEMPT_WINDOW_MS=24*60*60*1000;
-const digestTag=async(value)=>{
- const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));
- return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-};
-async function ipTags(request,env,now){
- const ip=request.headers.get('cf-connecting-ip')||'unknown';
+const LEARNER_ID=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+async function learnerTag(request,env){
+ const id=request.headers.get('x-easay-learner-id')||'';
+ if(!LEARNER_ID.test(id))return null;
  const secret=env.CERT_HASH_SECRET||'';
  if(secret.length<24)throw Error('CERT_HASH_SECRET not configured');
- // Legacy dated tokens are counted during the 24-hour migration period.
- // Nothing stores or exposes the plaintext IP address.
- const today=new Date(now).toISOString().slice(0,10);
- const yesterday=new Date(now-ATTEMPT_WINDOW_MS).toISOString().slice(0,10);
- return Promise.all([digestTag(secret+':'+ip+':limit-v2'),digestTag(secret+':'+ip+':'+today),digestTag(secret+':'+ip+':'+yesterday)]);
+ const bytes=new TextEncoder().encode(secret+':learner-v1:'+id.toLowerCase());
+ const hash=await crypto.subtle.digest('SHA-256',bytes);
+ return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 export async function onRequestGet({request,env}){
  if(!env.EASAY_DB)return json({error:'Серверный экзамен пока не настроен. Доступна тренировка без сертификата.',available:false},503);
@@ -29,19 +26,20 @@ export async function onRequestGet({request,env}){
  if(!exam)return json({error:'Направление не найдено.'},404);
  try{
   const now=Date.now();
-  const [ip,legacyToday,legacyYesterday]=await ipTags(request,env,now);
+  const learner=await learnerTag(request,env);
+  if(!learner)return json({code:'LEARNER_ID_REQUIRED',error:'Не удалось определить постоянный идентификатор этого браузера. Для серверного экзамена включи хранение данных сайта.',practiceAvailable:true},400);
   // Check-and-insert happen in one SQLite statement so two simultaneous tabs
   // cannot both reserve a certificate attempt within the same rolling window.
   const id=crypto.randomUUID();
   const reserved=await env.EASAY_DB.prepare(
    'INSERT INTO exam_attempts (id,course_id,questions_json,ip_hash,created_at,expires_at) '+
    'SELECT ?,?,?,?,?,? WHERE NOT EXISTS ('+
-   'SELECT 1 FROM exam_attempts WHERE ip_hash IN (?,?,?) AND created_at>?)')
-   .bind(id,exam.courseId,JSON.stringify(exam.questions),ip,now,now+45*60*1000,
-    ip,legacyToday,legacyYesterday,now-ATTEMPT_WINDOW_MS).run();
+   'SELECT 1 FROM exam_attempts WHERE ip_hash=? AND created_at>?)')
+   .bind(id,exam.courseId,JSON.stringify(exam.questions),learner,now,now+45*60*1000,
+    learner,now-ATTEMPT_WINDOW_MS).run();
   if((reserved?.meta?.changes||0)!==1){
-   const latest=await env.EASAY_DB.prepare('SELECT MAX(created_at) as last_attempt FROM exam_attempts WHERE ip_hash IN (?,?,?) AND created_at>?')
-    .bind(ip,legacyToday,legacyYesterday,now-ATTEMPT_WINDOW_MS).first();
+   const latest=await env.EASAY_DB.prepare('SELECT MAX(created_at) as last_attempt FROM exam_attempts WHERE ip_hash=? AND created_at>?')
+    .bind(learner,now-ATTEMPT_WINDOW_MS).first();
    const nextAttemptAt=latest?.last_attempt!=null?Number(latest.last_attempt)+ATTEMPT_WINDOW_MS:now+ATTEMPT_WINDOW_MS;
    return json({error:'Серверный экзамен доступен один раз в 24 часа. Следующая попытка — после истечения 24 часов с начала предыдущей.',code:'EXAM_DAILY_LIMIT',nextAttemptAt,available:false,practiceAvailable:true},429);
   }
