@@ -280,6 +280,25 @@ function completeOnboarding(){
  $('#modalRoot').innerHTML='';const deepLesson=new URLSearchParams(location.search).get('lesson');if(getLesson(deepLesson)){go('lesson',deepLesson);if(new URLSearchParams(location.search).get('pair')==='1'){step=2;render();}}else go('home');toast('Маршрут готов. Начинай в своём темпе!');
  if(!deepLesson&&tour?.shouldAutoStart())requestAnimationFrame(()=>tour.start());
 }
+function offerReturnReview(){
+ if(!state.onboarded||Object.keys(state.completed).length===0)return false;
+ try{
+  if(sessionStorage.getItem('easay:return-review:v1')==='shown')return false;
+  sessionStorage.setItem('easay:return-review:v1','shown');
+ }catch{}
+ const name=state.firstName?'С возвращением, '+state.firstName+'!':'С возвращением в Easay!';
+ const completed=Object.keys(state.completed).length;
+ $('#modalRoot').innerHTML=`<div class="modal-backdrop return-backdrop" id="returnReviewDialog">
+ <section class="modal return-modal" role="dialog" aria-modal="true" aria-labelledby="returnTitle" aria-describedby="returnDescription">
+  <div class="return-eyebrow">EASAY · ТВОЙ ПРОГРЕСС СОХРАНЁН</div>
+  <h2 id="returnTitle">${escapeHTML(name)}</h2>
+  <p id="returnDescription">У тебя уже ${completed} ${completed===1?'пройденный урок':'пройденных уроков'}. Короткое повторение поможет вспомнить знакомые фразы перед новыми темами.</p>
+  <div class="return-actions"><button type="button" class="btn ghost" data-action="return-skip">Пропустить</button>
+  <button type="button" class="btn" data-action="return-review">В раздел «Повторение» →</button></div>
+ </section></div>`;
+ $('#returnReviewDialog [data-action="return-review"]')?.focus({preventScroll:true});
+ return true;
+}
 function downloadJSON(){const data=JSON.stringify(state,null,2);const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='easay-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),700)}
 async function importJSON(file){if(!file)return;if(file.size>1000000)return toast('Файл больше 1 МБ.');try{const data=JSON.parse(await file.text());if(data.version!==3||typeof data.completed!=='object'||!data.completed||!Array.isArray(data.mistakes)||typeof data.savedWords!=='object')throw Error('Неподходящий формат');if(!confirm('Заменить текущий прогресс данными из файла?'))return;state={...structuredClone(initial),...data,firstName:String(data.firstName||'').slice(0,32),primary:getCourse(data.primary)?data.primary:'everyday',mentorHistory:[],completed:Object.fromEntries(Object.entries(data.completed).filter(([key])=>getLesson(key))),savedWords:Object.fromEntries(Object.entries(data.savedWords||{}).filter(([key])=>/^(?:[a-z]+)-\d+:\d$/.test(key)))};save();go('home');toast('Прогресс импортирован.')}catch(e){toast('Файл не подходит для импорта: '+e.message)}}
 
@@ -287,6 +306,8 @@ async function importJSON(file){if(!file)return;if(file.size>1000000)return toas
 document.addEventListener('click',async event=>{
 const el=event.target.closest('[data-action]');if(!el)return;const action=el.dataset.action;
 if(action==='tour-start'){tour?.start();return;}
+if(action==='return-skip'){$('#modalRoot').innerHTML='';return;}
+if(action==='return-review'){$('#modalRoot').innerHTML='';reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false;go('review');return;}
 if(['home','catalog','review','practice','mentor','profile'].includes(action)){if(action==='review'){reviewList=[];reviewInitialized=false;flashIndex=0;flashRevealed=false}go(action);return;}
 if(action==='course'){go('course',el.dataset.id);return;}
 if(action==='lesson'){go('lesson',el.dataset.id);return;}
@@ -359,5 +380,5 @@ if(getLesson(deepLesson)){
  if(state.onboarded){go('lesson',deepLesson);if(deepParams.get('pair')==='1'){step=2;render();}}
  else loadOnboarding();
 }else if(!state.onboarded)loadOnboarding();
-if(!deepLesson&&state.onboarded&&tour.shouldAutoStart())requestAnimationFrame(()=>tour.start());
+if(!deepLesson&&state.onboarded){if(!offerReturnReview()&&tour.shouldAutoStart())requestAnimationFrame(()=>tour.start());}
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js').catch(()=>{});
