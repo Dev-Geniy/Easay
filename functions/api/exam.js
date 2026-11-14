@@ -30,15 +30,21 @@ export async function onRequestGet({request,env}){
  try{
   const now=Date.now();
   const [ip,legacyToday,legacyYesterday]=await ipTags(request,env,now);
-  const latest=await env.EASAY_DB.prepare('SELECT MAX(created_at) as last_attempt FROM exam_attempts WHERE ip_hash IN (?,?,?) AND created_at>?')
-   .bind(ip,legacyToday,legacyYesterday,now-ATTEMPT_WINDOW_MS).first();
-  if(latest?.last_attempt!=null){
-   const nextAttemptAt=Number(latest.last_attempt)+ATTEMPT_WINDOW_MS;
+  // Check-and-insert happen in one SQLite statement so two simultaneous tabs
+  // cannot both reserve a certificate attempt within the same rolling window.
+  const id=crypto.randomUUID();
+  const reserved=await env.EASAY_DB.prepare(
+   'INSERT INTO exam_attempts (id,course_id,questions_json,ip_hash,created_at,expires_at) '+
+   'SELECT ?,?,?,?,?,? WHERE NOT EXISTS ('+
+   'SELECT 1 FROM exam_attempts WHERE ip_hash IN (?,?,?) AND created_at>?)')
+   .bind(id,exam.courseId,JSON.stringify(exam.questions),ip,now,now+45*60*1000,
+    ip,legacyToday,legacyYesterday,now-ATTEMPT_WINDOW_MS).run();
+  if((reserved?.meta?.changes||0)!==1){
+   const latest=await env.EASAY_DB.prepare('SELECT MAX(created_at) as last_attempt FROM exam_attempts WHERE ip_hash IN (?,?,?) AND created_at>?')
+    .bind(ip,legacyToday,legacyYesterday,now-ATTEMPT_WINDOW_MS).first();
+   const nextAttemptAt=latest?.last_attempt!=null?Number(latest.last_attempt)+ATTEMPT_WINDOW_MS:now+ATTEMPT_WINDOW_MS;
    return json({error:'Серверный экзамен доступен один раз в 24 часа. Следующая попытка — после истечения 24 часов с начала предыдущей.',code:'EXAM_DAILY_LIMIT',nextAttemptAt,available:false,practiceAvailable:true},429);
   }
-  const id=crypto.randomUUID();
-  await env.EASAY_DB.prepare('INSERT INTO exam_attempts (id,course_id,questions_json,ip_hash,created_at,expires_at) VALUES (?,?,?,?,?,?)')
-   .bind(id,exam.courseId,JSON.stringify(exam.questions),ip,now,now+45*60*1000).run();
   return json({mode:'verified',attemptId:id,courseId:exam.courseId,courseTitle:exam.courseTitle,passing:PASS_SCORE,
    expiresAt:now+45*60*1000,questions:exam.questions.map(({id,prompt,options})=>({id,prompt,options}))});
  }catch{return json({error:'Сервер экзамена сейчас недоступен. Попробуй тренировку.'},503)}
