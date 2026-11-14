@@ -1,4 +1,5 @@
-// Easay curriculum. All 120 lessons are bundled for offline learning.
+import {EXTRA_LESSONS} from './course-extensions.js';
+// Easay curriculum: 24 authored lessons per course, bundled for offline learning.
 // Lesson fields: title | 4 English=Russian phrase pairs | speaking model English=Russian | teaching tip.
 const rawCourses = [
 { id:'basics',icon:'🧩',title:'English Basics',ru:'Английский с нуля',level:'A1',group:'start',desc:'Первые слова, простые фразы и фундамент грамматики.',tone:'#D6EAFF',accent:'#3776F6',grammar:'Начинай с коротких предложений. В английском обычно нужен порядок: кто + действие + дополнение.',lessons:`
@@ -158,12 +159,19 @@ API и интеграции|API endpoint=Адрес API|Authentication token=Т�
 ];
 
 const clean = x=>x.trim();
-export const COURSES = rawCourses.map(course => ({...course,lessons:course.lessons.trim().split('\n').map((line,i)=>{
+export const COURSES = rawCourses.map(course => {
+ const extra = (EXTRA_LESSONS[course.id]||'').trim().split('\n').filter(Boolean).map(line=>{
+  const chunks=line.split('|').map(clean);
+  if(chunks.length!==6)throw new Error('Invalid extended lesson in '+course.id+': '+line);
+  return [chunks[0],...chunks.slice(1,5),chunks[1],chunks[5]].join('|');
+ });
+ return {...course,lessons:[...course.lessons.trim().split('\n'),...extra].map((line,i)=>{
   const [title,...rest]=line.split('|').map(clean);
   if(rest.length!==6)throw new Error(`Invalid lesson ${course.id}:${title}: got ${rest.length}`);
   const chunks=rest.slice(0,5).map(part=>{const sep=part.indexOf('=');if(sep<0)throw new Error(`Missing translation ${course.id}:${title}`);return [part.slice(0,sep).trim(),part.slice(sep+1).trim()];});
   return {id:`${course.id}-${i+1}`,courseId:course.id,number:i+1,title,words:chunks.slice(0,4),example:chunks[4][0],translation:chunks[4][1],tip:rest[5],level:course.level};
-})}));
+})};
+});
 export const ALL_LESSONS = COURSES.flatMap(c=>c.lessons);
 export const TOTAL_LESSONS = ALL_LESSONS.length;
 export function getCourse(id){return COURSES.find(c=>c.id===id)}
