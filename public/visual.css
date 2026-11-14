@@ -139,3 +139,38 @@
 /* Complete transparency at the perimeter reveals the calm white canvas beneath. */
 .hero-art,.speaking-media,.certificate-media{background:transparent}
 .hero-art>img,.speaking-media img,.certificate-media img{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+
+/* Hero refresh: original artwork fades into white; on phones it lives
+   in the free space to the right of the heading, not below the CTA. */
+.hero-art>img{
+  top:50%;left:55%;width:154%;height:auto;max-width:none;
+  object-fit:contain;object-position:center;opacity:1;
+  -webkit-mask-image:radial-gradient(ellipse 76% 76% at 59% 50%,#000 52%,#000e 72%,transparent 100%);
+  mask-image:radial-gradient(ellipse 76% 76% at 59% 50%,#000 52%,#000e 72%,transparent 100%);
+  transform:translate3d(-50%,calc(-50% + var(--parallax-y,0px)),0);
+}
+@media(min-width:601px) and (max-width:790px){
+  .hero-art{height:345px}
+  .hero-art>img{left:50%;width:112%;height:auto}
+}
+@media(max-width:600px){
+  .hero-layout{display:block;min-height:0}
+  .hero-copy{position:relative;z-index:2}
+  .hero-art{
+    position:absolute;z-index:0;top:57px;right:-14px;
+    width:min(47vw,210px);height:242px;
+    max-width:none;min-width:0;margin:0;overflow:visible;
+    opacity:.94;
+  }
+  .hero-art>img{
+    top:50%;left:50%;
+    width:clamp(500px,140vw,620px);height:auto;max-width:none;
+    object-fit:contain;object-position:center;
+    -webkit-mask-image:radial-gradient(ellipse 30% 42% at 68% 50%,#000 48%,#000d 60%,transparent 100%);
+    mask-image:radial-gradient(ellipse 30% 42% at 68% 50%,#000 48%,#000d 60%,transparent 100%);
+    transform:translate3d(-67%,calc(-50% + var(--parallax-y,0px)),0);
+  }
+}
+@media(max-width:600px) and (prefers-reduced-motion:reduce){
+  .hero-art>img{transform:translate3d(-67%,-50%,0)!important}
+}
