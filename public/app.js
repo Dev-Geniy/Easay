@@ -78,6 +78,11 @@ function home(){
  const upcoming=nextReviewAt(state.savedWords,state.reviews);
  const reviewSummary=due?due+' фраз к повторению':!saved?'Сохраняй фразы из уроков':upcoming?'Следующее: '+nextReviewLabel(upcoming):'Пока нет запланированных карточек';
  const finished=completed===primary.lessons.length;
+ const lessonHeadline=finished?'Курс завершён — проверь свои знания':next.title;
+ const lessonMeta=finished?primary.ru+' · 40 вопросов · проходной балл 90/100':primary.ru+' · Урок '+next.number+' из '+primary.lessons.length+' · около 10 минут';
+ const lessonAction=finished?
+  '<a class="btn white home-main-button" href="/exam.html?course='+encodeURIComponent(primary.id)+'">Перейти к экзамену →</a>':
+  '<button class="btn white home-main-button" data-action="lesson" data-id="'+escapeHTML(next.id)+'">Продолжить урок →</button>';
  const rhythm=({gentle:'В своём темпе',regular:'Несколько раз в неделю',daily:'Каждый день'})[state.pace]||'В своём темпе';
  return `<div class="home-quiet home-v2">
   <div class="home-topline"><span class="overline">МОЙ АНГЛИЙСКИЙ</span><span class="pill">${escapeHTML(state.level)} · ${escapeHTML(rhythm)}</span></div>
@@ -86,11 +91,11 @@ function home(){
   <section class="home-primary home-lesson-focus" aria-label="Следующий урок">
    <div class="home-primary-content">
     <span class="home-label">${finished?'КУРС ПРОЙДЕН':'СЛЕДУЮЩИЙ УРОК'}</span>
-    <h2>${escapeHTML(next.title)}</h2>
-    <p>${escapeHTML(primary.ru)} · Урок ${next.number} из ${primary.lessons.length} · около 10 минут</p>
+    <h2>${escapeHTML(lessonHeadline)}</h2>
+    <p>${escapeHTML(lessonMeta)}</p>
     <div class="home-lesson-progress" role="progressbar" aria-label="Пройдено уроков" aria-valuemin="0" aria-valuemax="${primary.lessons.length}" aria-valuenow="${completed}"><span style="width:${progress}%"></span></div>
     <span class="home-lesson-caption">${completed} из ${primary.lessons.length} уроков · ${progress}%</span>
-    <button class="btn white home-main-button" data-action="lesson" data-id="${escapeHTML(next.id)}">${finished?'Повторить последний урок':'Продолжить урок'} →</button>
+    ${lessonAction}
    </div>
   </section>
   <div class="home-quick-actions" aria-label="Повторение и прогресс">
