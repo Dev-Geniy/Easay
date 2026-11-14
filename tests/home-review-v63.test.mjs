@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {REVIEW_RATINGS,isReviewDue,nextReviewDelay,reviewDelayLabel,scheduleReview} from '../public/review-scheduler.js';
+import {REVIEW_RATINGS,isReviewDue,nextReviewDelay,reviewDelayLabel,scheduleReview,nextReviewAt,nextReviewLabel} from '../public/review-scheduler.js';
 const read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 const MINUTE=60_000,DAY=24*60*MINUTE;
 const reference=Date.parse('2026-11-14T12:00:00Z');
@@ -88,11 +88,56 @@ test('scheduled reviews use exactly three ratings; free practice does not affect
 });
 test('PWA precaches the new assets and does not require an external service',()=>{
  const sw=read('../public/sw.js'),html=read('../public/app.html');
- assert.match(sw,/easay-static-v6\.3/);
+ assert.match(sw,/easay-static-v6\.3.1/);
  assert.match(sw,/['"]\/review-scheduler\.js['"]/);
  assert.match(sw,/['"]\/home-review\.css['"]/);
  assert.match(html,/\/home-review\.css/);
- assert.match(html,/Версия 6\.3/);
+ assert.match(html,/Версия 6\.3\.1/);
  const src=read('../public/review-scheduler.js');
  assert.doesNotMatch(src,/fetch\(|Groq|api\/ai/);
+});
+
+test('upcoming review distinguishes no cards from not-yet-due cards',()=>{
+ const now=reference;
+ const words={a:{en:'A'},b:{en:'B'},c:{en:'C'},d:{en:'D'}};
+ const reviews={
+  a:{dueAt:now+10*MINUTE,due:'2026-11-14',level:0},
+  b:{dueAt:now+2*DAY,due:'2026-11-16',level:1},
+  c:{dueAt:now-1000,due:'2026-11-14',level:0},
+  d:{due:'2026-11-15',level:1}
+ };
+ assert.equal(nextReviewAt(words,reviews,now),now+10*MINUTE);
+ assert.equal(isReviewDue(reviews.a,now),false);
+ assert.equal(isReviewDue(reviews.a,now+10*MINUTE),true);
+ assert.equal(nextReviewAt({},reviews,now),null);
+ assert.ok(nextReviewLabel(now+10*MINUTE).length>0);
+});
+test('old date-only reviews schedule at their local midnight',()=>{
+ const now=new Date('2026-11-14T12:00:00').getTime();
+ const words={a:{en:'A'},b:{en:'B'}};
+ const reviews={a:{level:1,due:'2026-11-15'},b:{level:1,due:'2026-11-17'}};
+ const next=nextReviewAt(words,reviews,now);
+ assert.equal(next,new Date('2026-11-15T00:00:00').getTime());
+});
+test('review UI has an upcoming reminder and refreshes itself after 10 minute delays',()=>{
+ const app=read('../public/app.js');
+ assert.match(app,/const upcoming=nextReviewAt\(state\.savedWords,state\.reviews\)/);
+ assert.match(app,/function scheduleReviewUiRefresh\(\)/);
+ assert.match(app,/setTimeout\(\(\)=>\{/);
+ assert.match(app,/reviewUiRefreshTimer!==null/);
+ assert.match(app,/reviewList\.length>0\)\)return/);
+ assert.match(app,/document\.addEventListener\('visibilitychange'/);
+ assert.match(app,/Следующее повторение:/);
+ assert.match(app,/Пока всё повторено!/);
+ assert.doesNotMatch(app,/Сегодня всё повторено/);
+});
+test('completed primary course has final exam CTA, unfinished course continues learning',()=>{
+ const app=read('../public/app.js');
+ const home=app.slice(app.indexOf('function home(){'),app.indexOf('function catalog(){'));
+ assert.match(home,/const finished=completed===primary\.lessons\.length/);
+ assert.match(home,/href="\/exam\.html\?course=/);
+ assert.match(home,/Перейти к экзамену/);
+ assert.match(home,/data-action="lesson"/);
+ assert.match(home,/Продолжить урок/);
+ assert.match(home,/home-main-button/);
 });

@@ -1,6 +1,6 @@
 {
   "name": "easay",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "private": true,
   "type": "module",
   "description": "Offline-first English learning courses + Groq AI mentor on Cloudflare Workers",
