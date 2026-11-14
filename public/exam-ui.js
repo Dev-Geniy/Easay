@@ -1,19 +1,33 @@
 import {getCourse} from './courses.js';
+import {deckForCourse} from './flashcards.js';
 import {buildExam,gradeExam,EXAM_QUESTIONS,PASS_SCORE} from './exam.js';
 const $=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const courseId=new URLSearchParams(location.search).get('course')||'';
 const course=getCourse(courseId);
 const exam={mode:'loading',questions:[],attemptId:null,answers:{},index:0,result:null,busy:false};
+const review={cards:deckForCourse(course),index:0,flipped:false};
 $('back').href='/app.html';
 if(!course){$('exam').innerHTML='<p>Курс не найден. <a href="/app.html">Вернуться к урокам</a></p>';}
 else{
  $('title').textContent=course.title;
  start();
 }
-async function start(){
+function start(){
+ review.index=0;review.flipped=false;renderPreExam();
+}
+function renderPreExam(){
+ const item=review.cards[review.index];
+ if(!item)return startExam();
+ const last=review.index===review.cards.length-1;
+ $('exam').innerHTML='<div class="fade pre-exam"><div class="exam-top"><span class="badge">ПОВТОРЕНИЕ ПЕРЕД ЭКЗАМЕНОМ</span><span class="badge gray">'+(review.index+1)+' / '+review.cards.length+'</span></div><div class="bar"><span style="width:'+Math.round((review.index+1)*100/review.cards.length)+'%"></span></div><h2 class="pre-exam-title">Вспомни перевод</h2><p class="subtle">Переверни карточку и проверь себя. Это тренировка, она не влияет на баллы.</p><button class="pre-exam-card" type="button" id="examFlip" aria-label="'+(review.flipped?'Показать английский':'Открыть перевод')+'"><span>'+(review.flipped?'ПЕРЕВОД':'АНГЛИЙСКАЯ ФРАЗА')+'</span><strong>'+escape(review.flipped?item.ru:item.en)+'</strong><small>'+(review.flipped?'Нажми, чтобы увидеть английский':'Как это переводится? Нажми, чтобы проверить')+'</small></button><div class="buttons pre-exam-actions"><button class="btn secondary" id="examSkip">Начать экзамен</button><button class="btn" id="examNext" '+(review.flipped?'':'disabled')+'>'+(last?'К экзамену →':'Следующая →')+'</button></div></div>';
+ $('examFlip').addEventListener('click',()=>{review.flipped=!review.flipped;renderPreExam()});
+ $('examNext').addEventListener('click',()=>{if(!review.flipped)return;if(last)startExam();else{review.index++;review.flipped=false;renderPreExam()}});
+ $('examSkip').addEventListener('click',startExam);
+}
+async function startExam(){
  exam.mode='loading';exam.questions=[];exam.answers={};exam.index=0;exam.result=null;exam.busy=false;
- $('exam').innerHTML='<div class="loading">Готовим 20 вопросов по материалу курса…</div>';
+ $('exam').innerHTML='<div class="loading">Готовим '+EXAM_QUESTIONS+' вопросов по материалу курса…</div>';
  try{
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),6500);
@@ -43,8 +57,8 @@ function render(){
 }
 function renderFinish(){
  const v=exam.mode==='verified';
- $('exam').innerHTML='<div class="fade"><span class="badge">'+(v?'Подтверждение данных':'Тренировочный режим')+'</span><h2 class="final-title">Все 20 ответов готовы</h2><p class="subtle">Теперь можно получить результат. Баллы начисляются по 5 за каждый верный ответ. Проходной уровень — 90/100.</p>'+(v?'<div class="field"><label for="recipient">Имя для сертификата Easay</label><input id="recipient" autocomplete="name" maxlength="75" placeholder="Как указать имя на сертификате" required></div><label class="check-line"><input id="publishName" type="checkbox"><span>Разрешаю показывать указанное имя на общедоступной странице проверки сертификата. Если не отмечать, имя будет видно только на моей локальной копии PDF.</span></label>':'<div class="notice warn">Сервер сертификатов ещё не подключён. Это тренировочный экзамен: результат доступен, но подтверждённый PDF и публичная проверка пока не выдаются.</div>')+'<div class="buttons"><button class="btn secondary" id="back">← К вопросам</button><button class="btn" id="submit">Показать результат →</button></div><p class="subtle" id="failure" role="alert"></p></div>';
- $('exam').querySelector('#back').addEventListener('click',()=>{exam.index=19;render()});
+ $('exam').innerHTML='<div class="fade"><span class="badge">'+(v?'Подтверждение данных':'Тренировочный режим')+'</span><h2 class="final-title">Все '+EXAM_QUESTIONS+' ответов готовы</h2><p class="subtle">Теперь можно получить результат. Каждый верный ответ приносит 2,5 балла. Проходной уровень — 90/100.</p>'+(v?'<div class="field"><label for="recipient">Имя для сертификата Easay</label><input id="recipient" autocomplete="name" maxlength="75" placeholder="Как указать имя на сертификате" required></div><label class="check-line"><input id="publishName" type="checkbox"><span>Разрешаю показывать указанное имя на общедоступной странице проверки сертификата. Если не отмечать, имя будет видно только на моей локальной копии PDF.</span></label>':'<div class="notice warn">Сервер сертификатов ещё не подключён. Это тренировочный экзамен: результат доступен, но подтверждённый PDF и публичная проверка пока не выдаются.</div>')+'<div class="buttons"><button class="btn secondary" id="back">← К вопросам</button><button class="btn" id="submit">Показать результат →</button></div><p class="subtle" id="failure" role="alert"></p></div>';
+ $('exam').querySelector('#back').addEventListener('click',()=>{exam.index=EXAM_QUESTIONS-1;render()});
  $('exam').querySelector('#submit').addEventListener('click',submit);
 }
 async function submit(){
