@@ -64,7 +64,7 @@ export function createQuizFeedback({callAI,onRetry,onContinue,onClose}){
   }catch(e){if(session===s)renderMessage('ai','ИИ пока недоступен: '+e.message+'. Можно повторить тест или продолжить без пересдачи.');}
   finally{if(session===s){s.busy=false;const button=get('#quizFeedbackSend');if(button)button.disabled=false;}}
  }
- function open({lesson,course,questions,answers,score}){
+ function open({lesson,course,questions,answers,score,autoExplain=true}){
   if(session)close();
   if(!lesson||!Array.isArray(questions)||questions.length!==3)return;
   previousFocus=document.activeElement;
@@ -81,7 +81,12 @@ export function createQuizFeedback({callAI,onRetry,onContinue,onClose}){
   get('#quizFeedbackLog').replaceChildren();
   // Deterministic feedback is visible immediately, before Groq responds.
   renderMessage('ai',score===3?'Все три ответа верные! Ниже можно задать вопрос по теме урока.':score>=2?'Тест зачтён. Ниже отмечен вопрос, который стоит повторить.':'Ничего страшного: посмотри верные ответы выше и попробуй ещё раз.');
-  void explain(s);
+  if(autoExplain)void explain(s);
+  else{
+   s.busy=false;
+   get('#quizFeedbackSend').disabled=false;
+   renderMessage('ai','Автоматический ИИ-разбор отключён в настройках. Верные ответы показаны выше. Если понадобится объяснение, задай вопрос в чате.');
+  }
  }
  return {open,close,get active(){return Boolean(session)}};
 }
