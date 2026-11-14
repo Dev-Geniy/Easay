@@ -1,0 +1,42 @@
+/* Easay 5.8 — learning cards and thoughtful return welcome. */
+.lesson-deck{max-width:760px;margin:0 auto}
+.lesson-deck-intro{font-size:13px;line-height:1.7;color:#667895;margin:8px 0 20px}
+.lesson-deck-count{display:inline-flex;color:#315cf5;background:#edf3ff;border-radius:99px;padding:8px 13px;font-size:11px;font-weight:840;margin-bottom:14px}
+.lesson-flashcard{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:16px;width:100%;min-height:260px;padding:35px 22px;
+ background:linear-gradient(145deg,#ebf2ff 0%,#f7faff 100%);
+ border:1.5px solid #dbe6fa;border-radius:24px;color:#1b2f58;
+ cursor:pointer;box-shadow:0 10px 24px rgba(23,52,103,.05);
+ text-align:center;transition:transform .2s ease,border-color .2s ease,background .2s ease;
+}
+.lesson-flashcard:hover{border-color:#9cb7fc;transform:translateY(-2px)}
+.lesson-flashcard.revealed{background:linear-gradient(140deg,#edfaf7,#f6fcfb);border-color:#cce9de;color:#1b5646}
+.lesson-flashcard strong{font-size:clamp(23px,3.4vw,36px);line-height:1.34;max-width:680px;overflow-wrap:anywhere}
+.lesson-deck-language{font-size:10px;letter-spacing:1.1px;font-weight:900;color:#6a88cc}
+.lesson-flashcard.revealed .lesson-deck-language{color:#358a74}
+.lesson-flashcard small{font-size:12px;color:#8496b1}
+.lesson-deck-buttons{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:17px}
+.lesson-deck-buttons .btn{min-height:46px;border-radius:13px}
+.return-backdrop{z-index:5000;background:rgba(18,32,64,.43);backdrop-filter:blur(5px);display:grid;place-items:center;padding:18px}
+.return-modal{max-width:480px;width:min(100%,480px);border-radius:27px;padding:clamp(24px,4vw,36px);box-shadow:0 28px 92px rgba(15,33,79,.22);background:#fff}
+.return-eyebrow{font-size:10px;color:#4269d4;letter-spacing:1.2px;font-weight:900;margin-bottom:15px}
+.return-modal h2{font-size:clamp(25px,4vw,34px);line-height:1.2;letter-spacing:-.9px;margin:0 0 15px;color:#1a2b4b}
+.return-modal p{font-size:14px;line-height:1.77;color:#6c7d96;margin:0}
+.return-actions{display:flex;justify-content:flex-end;gap:11px;flex-wrap:wrap;margin-top:27px}
+.return-actions .btn{min-height:48px;border-radius:13px}
+.return-actions .btn.ghost{background:transparent;color:#8490a4;box-shadow:none}
+.return-actions .btn.ghost:hover{background:#f6f8fb;color:#344c77}
+@media(max-width:560px){
+ .lesson-flashcard{min-height:225px;padding:26px 17px;border-radius:19px}
+ .lesson-flashcard strong{font-size:25px}
+ .lesson-deck-buttons{gap:8px}
+ .lesson-deck-buttons .btn{flex:1;font-size:12px;min-width:0}
+ .return-modal{border-radius:21px;padding:25px 20px}
+ .return-actions{flex-direction:column-reverse}
+ .return-actions .btn{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ .lesson-flashcard{transition:none!important}
+ .return-backdrop{backdrop-filter:none}
+}
