@@ -30,6 +30,21 @@ test('motion respects user preference and service worker refreshes design',()=>{
  const css=read('../public/intro.css')+read('../public/visual.css');
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  const worker=read('../public/sw.js');
- assert.match(worker,/easay-static-v6\.3.1/);
+ assert.match(worker,/easay-static-v6\.3.2/);
  for(const asset of ["'/visual.css'","'/intro.css'","'/images/hero.webp'","'/images/speaking.webp'","'/images/certificate.webp'"])assert.ok(worker.includes(asset));
+});
+
+test('illustration edges fully feather into white and do not crop on narrow mobile devices',()=>{
+ const html=read('../public/index.html'),css=read('../public/visual.css');
+ for(const name of ['hero.webp','speaking.webp','certificate.webp'])assert.ok(html.includes('/images/'+name));
+ assert.match(css,/ellipse closest-side at 50% 50%/);
+ assert.match(css,/transparent 100%/);
+ assert.match(css,/-webkit-mask-image:radial-gradient/);
+ assert.match(css,/\.speaking-media img,\.certificate-media img\{width:100%;left:0\}/);
+ assert.match(css,/\.hero-art>img,\.speaking-media img,\.certificate-media img\{-webkit-mask-repeat:no-repeat/);
+ assert.match(html,/visual\.css\?v=6\.3\.2/);
+});
+test('new slogans stay coherent through the landing journey',()=>{
+ const html=read('../public/index.html');
+ for(const phrase of ['Говори по-английски.','Начни с одной фразы.','Первая фраза. Первый разговор.','Учи. Повторяй.','Применяй в жизни.','Не только знать слова.','Английский под твою цель','Результат, который можно проверить.'])assert.ok(html.includes(phrase),phrase);
 });
