@@ -106,3 +106,12 @@ Four optimized original Easay-generated WebP illustrations are stored in `public
 - The tooltip explains that Easay is free, support is voluntary, and **50% of donations** are directed to meals and development for children in the SkyKids children's club and teen center.
 - The final step returns to the main Continue Learning button. No donation click, payment or outbound navigation is triggered by the tour.
 - Offline cache advanced to v5.7; the spotlight step is covered by automated tests.
+
+## Easay 5.8 — extended learning and spaced revision
+
+- Original 12 lessons per course remain unchanged and keep the same IDs and completion data.
+- Each of 11 tracks now has 24 authored lessons, totaling 264 lessons and 1,056 learning phrase cards.
+- The lesson flow adds 4 end-of-lesson flashcards after the dialogue and before the 3-question quiz.
+- A full-course 96-card optional revision deck appears before the final 40-question exam, which is drawn from all 24 lessons (2.5 points per question; 90+/100 required for the internal Easay certificate).
+- A returning learner who completed any lessons receives a two-choice welcome popup once per browser session: Skip or Go to Review.
+- The existing storage key is preserved to retain earlier progress. The certificate is based on a server-graded Easay assessment, not an accredited academic qualification.
