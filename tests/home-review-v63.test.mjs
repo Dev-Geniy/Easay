@@ -92,7 +92,7 @@ test('PWA precaches the new assets and does not require an external service',()=
  assert.match(sw,/['"]\/review-scheduler\.js['"]/);
  assert.match(sw,/['"]\/home-review\.css['"]/);
  assert.match(html,/\/home-review\.css/);
- assert.match(html,/Версия 6\.3\.1/);
+ assert.match(html,/Версия 6\.3\.3/);
  const src=read('../public/review-scheduler.js');
  assert.doesNotMatch(src,/fetch\(|Groq|api\/ai/);
 });
