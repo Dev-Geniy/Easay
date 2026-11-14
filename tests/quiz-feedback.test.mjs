@@ -5,7 +5,7 @@ const read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 test('quiz feedback is only part of ordinary lesson and leaves final exam code untouched',()=>{
  const app=read('../public/app.js'),exam=read('../public/exam-ui.js'),html=read('../public/app.html');
  assert.match(app,/createQuizFeedback/);
- assert.match(app,/quizFeedback\.open/);
+ assert.match(app,/quizFeedback\?\.open/);
  assert.match(html,/\/quiz-feedback\.css/);
  assert.doesNotMatch(exam,/createQuizFeedback|quizFeedback/);
  assert.match(exam,/restart/);
